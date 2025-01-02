@@ -17,6 +17,7 @@ local utils = require("alternative.utils")
 ---@field text string[]
 ---@field range integer[]
 ---@field ts_captures table<string, TSNode[]>?
+---@field indent integer
 
 ---@class Alternative.Rule
 ---@field input Alternative.Rule.Input How to get the input range
@@ -120,6 +121,7 @@ end
 ---@return Alternative.Input?
 function M._resolve_input(input, lookahead)
   local value = input.value
+  local indent = vim.fn.indent(vim.fn.line("."))
 
   if input.type == "string" then
     ---@cast value string
@@ -133,16 +135,16 @@ function M._resolve_input(input, lookahead)
       return nil
     end
 
-    return { text = current_word, range = range }
+    return { text = current_word, range = range, indent = indent }
   elseif input.type == "strings" then
     ---@cast value string[]
-    local current_word, range = utils.get_current_word()
-    return vim.list_contains(value, current_word) and { text = current_word, range = range } or nil
+    local current_word, range = utils.get_current_word(false)
+    return vim.list_contains(value, current_word) and { text = current_word, range = range, indent = indent } or nil
   elseif input.type == "callback" then
     local range = value()
     if range then
       local input_text = vim.api.nvim_buf_get_text(0, range[1], range[2], range[3], range[4], {})
-      return { text = input_text, range = range }
+      return { text = input_text, range = range, indent = indent }
     else
       return nil
     end
@@ -154,7 +156,7 @@ function M._resolve_input(input, lookahead)
     end
 
     local input_text = vim.api.nvim_buf_get_text(0, range[1], range[2], range[3], range[4], {})
-    return { text = input_text, range = range, ts_captures = ts_captures }
+    return { text = input_text, range = range, ts_captures = ts_captures, indent = indent }
   end
 end
 
@@ -218,13 +220,14 @@ function M._resolve_replacement(replacement, input, direction)
   end
 
   if input.ts_captures and to_replace then
-    to_replace = vim
-      .iter(to_replace)
-      :map(function(line)
-        return M._expand_replacement_capture(line, input.ts_captures)
-      end)
-      :flatten(1)
-      :totable()
+    to_replace = M._expand_replacement_capture(to_replace[1], input.ts_captures)
+  end
+
+  -- Indent from second line
+  if input.indent > 0 and to_replace and #to_replace > 1 then
+    for i = 2, #to_replace do
+      to_replace[i] = string.rep(" ", input.indent) .. to_replace[i]
+    end
   end
 
   return to_replace, multi_choice_index
