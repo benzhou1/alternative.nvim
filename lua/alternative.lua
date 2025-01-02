@@ -54,12 +54,17 @@ function M._apply_preview(replacement, input)
   vim.opt.conceallevel = 2
   vim.opt.concealcursor = "n"
 
-  local virt_text = vim
-    .iter(replacement)
-    :map(function(text)
-      return { text, "Comment" }
-    end)
-    :totable()
+  local virt_text = { { replacement[1], "Comment" } }
+  local virt_lines
+  if #replacement > 1 then
+    virt_lines = vim
+      .iter(replacement)
+      :skip(1)
+      :map(function(text)
+        return { { text, "Comment" } }
+      end)
+      :totable()
+  end
 
   local range = input.range
   local extmark_id = vim.api.nvim_buf_set_extmark(0, M.preview_ns, range[1], range[2], {
@@ -67,6 +72,7 @@ function M._apply_preview(replacement, input)
     end_col = range[4],
     conceal = "",
     virt_text = virt_text,
+    virt_lines = virt_lines,
     virt_text_pos = "inline",
   })
 
