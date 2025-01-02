@@ -164,4 +164,29 @@ function M.stable_pairs(t)
   end
 end
 
+---Trim the redundant whitespaces from the input lines while preserving the indentation level.
+---@param input string
+---@return string
+function M.format_indentation(input)
+  input = input:gsub("%s+$", "")
+  local lines = vim.split(input, "\n", { trimempty = false })
+  local smallest_indent
+
+  for _, line in ipairs(lines) do
+    -- Count the number of leading whitespaces
+    -- Don't consider indent of empty lines
+    local leading_whitespaces = line:match("^%s*")
+    if #leading_whitespaces ~= line:len() then
+      smallest_indent = smallest_indent and math.min(smallest_indent, #leading_whitespaces) or #leading_whitespaces
+    end
+  end
+
+  for i, line in ipairs(lines) do
+    line = line:sub(smallest_indent + 1)
+    lines[i] = line
+  end
+
+  return table.concat(lines, "\n")
+end
+
 return M
