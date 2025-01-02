@@ -1,4 +1,4 @@
-local base = {
+return {
   {
     input = {
       type = "query",
@@ -14,7 +14,23 @@ local base = {
         (if_statement
           condition: (binary_expression
             left: (_)
-            "~=" @input
+            "!=" @input
+            right: (_)
+          )
+        ) @container
+
+        (if_statement
+          condition: (binary_expression
+            left: (_)
+            "===" @input
+            right: (_)
+          )
+        ) @container
+
+        (if_statement
+          condition: (binary_expression
+            left: (_)
+            "!==" @input
             right: (_)
           )
         ) @container
@@ -54,47 +70,22 @@ local base = {
       container = "if_statement",
     },
     replacement = function(ctx)
-      if ctx.original_text[1] == "==" then
-        return "~="
-      elseif ctx.original_text[1] == "~=" then
-        return "=="
-      elseif ctx.original_text[1] == ">" then
-        return "<"
-      elseif ctx.original_text[1] == "<" then
-        return ">"
-      elseif ctx.original_text[1] == ">=" then
-        return "<="
-      elseif ctx.original_text[1] == "<=" then
-        return ">="
-      end
+      local mapping = {
+        ["=="] = "!=",
+        ["!="] = "==",
+        ["==="] = "!==",
+        ["!=="] = "===",
+        [">"] = "<",
+        ["<"] = ">",
+        [">="] = "<=",
+        ["<="] = ">=",
+      }
 
-      return {}
+      return mapping[ctx.original_text[1]]
     end,
     lookahead = true,
     filetype = "lua",
   },
-}
-
-local lua = {
-  {
-    input = {
-      type = "query",
-      value = [[
-        (if_statement
-          condition: (_) @input
-          (#not-type? @input "binary_expression")
-        ) @container
-      ]],
-      container = "if_statement",
-    },
-    replacement = { "not (@input)" },
-    lookahead = true,
-    preview = true,
-    filetype = "lua",
-  },
-}
-
-local javascript = {
   {
     input = {
       type = "query",
@@ -112,5 +103,3 @@ local javascript = {
     filetype = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
   },
 }
-
-return vim.iter({ base, lua, javascript }):flatten():totable()
