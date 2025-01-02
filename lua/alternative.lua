@@ -346,33 +346,55 @@ function M._select_rule(entries, callback)
 
   local options = {}
 
+  -- If there are multiple items on the same row and same column, display them
+  -- in separate lines
   for row, items in pairs(by_row) do
     table.sort(items, function(a, b)
       return a.col < b.col
     end)
-    local col_idx = 1
-    local cols = vim
-      .iter(items)
-      :map(function(item)
-        return item.col
-      end)
-      :totable()
 
-    local line = ""
-    for i = 1, cols[#cols] + 1 do
-      if vim.list_contains(cols, i - 1) then
-        local label = option_labels[col_idx]
-        table.insert(options, { label = label, entry = items[col_idx].entry })
+    local label_idx = 1
 
-        line = line .. label
-        col_idx = col_idx + 1
-      else
-        line = line .. " "
+    local function _make_line(_items)
+      local seen = {}
+      local duplicate = {}
+      local line = ""
+
+      for _, item in ipairs(_items) do
+        if not seen[item.col] then
+          local label = option_labels[label_idx]
+          label_idx = label_idx + 1
+
+          table.insert(options, { label = label, entry = item.entry })
+          line = line .. string.rep(" ", (item.col - #line)) .. label
+
+          seen[item.col] = true
+        else
+          table.insert(duplicate, item)
+        end
       end
+
+      return line, duplicate
     end
 
+    local _items = items
+    local lines = {}
+    while #_items > 0 do
+      local line, duplicate = _make_line(_items)
+      table.insert(lines, line)
+      _items = duplicate
+    end
+
+    local virt_lines = vim
+      .iter(lines)
+      :map(function(line)
+        return { { line, "CursorLineNr" } }
+      end)
+      :rev()
+      :totable()
+
     vim.api.nvim_buf_set_extmark(0, M.rule_selection_ns, row, 0, {
-      virt_lines = { { { line, "CursorLineNr" } } },
+      virt_lines = virt_lines,
       virt_lines_above = true,
     })
   end
