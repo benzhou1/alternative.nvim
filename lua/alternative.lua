@@ -236,13 +236,17 @@ end
 function M._all_rules()
   local _all = {}
 
-  for _, rule in ipairs(config_mod.config.rules) do
-    local content = require("alternative.rules." .. rule)
+  for _, rule_id in ipairs(config_mod.config.rules) do
+    local content = require("alternative.rules." .. rule_id)
 
     -- A group of rules
     if content[1] then
-      vim.list_extend(_all, content)
+      for _, rule in ipairs(content) do
+        rule.__id__ = rule_id
+        table.insert(_all, rule)
+      end
     else
+      content.__id__ = rule_id
       table.insert(_all, content)
     end
   end
@@ -293,7 +297,7 @@ function M._cycle_alternative(direction)
   end
 end
 
----@return {rule: Alternative.Rule, input: Alternative.Input}[]
+---@return {rule: Alternative.Rule, input: Alternative.Input}[] rules A list of rules that can be applied, sorted by input range
 function M._eligible_rules()
   local result = {}
 
@@ -319,41 +323,25 @@ function M._eligible_rules()
     ::continue::
   end
 
+  table.sort(result, function(a, b)
+    return utils.compare_array(
+      { a.input.range[1], a.input.range[2], a.rule.__id__ },
+      { b.input.range[1], b.input.range[2], b.rule.__id__ }
+    ) == -1
+  end)
+
   return result
 end
 
----@param entries {rule: Alternative.Rule, input: Alternative.Input}[]
----@param callback fun(entry: {rule: Alternative.Rule, input: Alternative.Input}) Callback to be called after the user selects a rule
-function M._select_rule(entries, callback)
-  local option_labels = { "a", "s", "d", "f", "g", "h", "j", "k", "l", ";" }
-  local by_row = vim.defaulttable(function()
-    return {}
-  end)
-
-  for _, entry in ipairs(entries) do
-    local input = entry.input
-
-    local srow = input.range[1]
-    local scol = input.range[2]
-    vim.api.nvim_buf_set_extmark(0, M.rule_selection_ns, srow, scol, {
-      hl_group = "Alternative.RuleSelectionBackdrop",
-      end_row = input.range[3],
-      end_col = input.range[4],
-    })
-
-    table.insert(by_row[srow], { col = scol, entry = entry })
-  end
-
+local function _show_rule_options(rules_by_row)
   local options = {}
 
   -- If there are multiple items on the same row and same column, display them
   -- in separate lines
-  for row, items in pairs(by_row) do
+  for row, items in pairs(rules_by_row) do
     table.sort(items, function(a, b)
       return a.col < b.col
     end)
-
-    local label_idx = 1
 
     local function _make_line(_items)
       local seen = {}
@@ -362,11 +350,8 @@ function M._select_rule(entries, callback)
 
       for _, item in ipairs(_items) do
         if not seen[item.col] then
-          local label = option_labels[label_idx]
-          label_idx = label_idx + 1
-
-          table.insert(options, { label = label, entry = item.entry })
-          line = line .. string.rep(" ", (item.col - #line)) .. label
+          table.insert(options, { label = item.label, entry = item.entry })
+          line = line .. string.rep(" ", (item.col - #line)) .. item.label
 
           seen[item.col] = true
         else
@@ -390,29 +375,77 @@ function M._select_rule(entries, callback)
       :map(function(line)
         return { { line, "CursorLineNr" } }
       end)
-      :rev()
       :totable()
 
     vim.api.nvim_buf_set_extmark(0, M.rule_selection_ns, row, 0, {
       virt_lines = virt_lines,
-      virt_lines_above = true,
     })
   end
 
-  vim.schedule(function()
-    M._setup_select_handler(options, function(entry)
-      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
-      callback(entry)
-    end, function()
-      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
-    end)
-  end)
+  local current_row = vim.fn.line(".") - 1
+  vim.api.nvim_buf_set_extmark(0, M.rule_selection_ns, current_row, 0, {
+    virt_text = { { string.rep(" ", 4) .. "? to show rule name", "Comment" } },
+    virt_text_pos = "eol",
+  })
+
+  return options
 end
 
----@param options {label: string, entry: {rule: Alternative.Rule, input: Alternative.Input}}[]
----@param apply_cb fun(entry: {rule: Alternative.Rule, input: Alternative.Input})
----@param cancel_cb fun()
-function M._setup_select_handler(options, apply_cb, cancel_cb)
+local function _show_rule_options_verbose(rules_by_row)
+  local options = {}
+
+  for row, items in pairs(rules_by_row) do
+    local virt_lines = vim
+      .iter(items)
+      :map(function(item)
+        table.insert(options, { label = item.label, entry = item.entry })
+
+        local split = vim.split(item.entry.rule.__id__, ".", { plain = true })
+        local short_id = split[#split]
+        return {
+          { string.rep(" ", item.col) },
+          { item.label, "CursorLineNr" },
+          { string.format(" (%s)", short_id), "Comment" },
+        }
+      end)
+      :totable()
+
+    vim.api.nvim_buf_set_extmark(0, M.rule_selection_ns, row, 0, {
+      virt_lines = virt_lines,
+    })
+  end
+
+  return options
+end
+
+---@param entries {rule: Alternative.Rule, input: Alternative.Input}[]
+---@param show_rule_id boolean Whether to show the rule id
+---@param callback fun(entry: {rule: Alternative.Rule, input: Alternative.Input}) Callback to be called after the user selects a rule
+function M._select_rule(entries, show_rule_id, callback)
+  local option_labels = { "a", "s", "d", "f", "g", "h", "j", "k", "l", ";" }
+  local by_row = vim.defaulttable(function()
+    return {}
+  end)
+
+  for i, entry in ipairs(entries) do
+    local input = entry.input
+
+    local srow = input.range[1]
+    local scol = input.range[2]
+    vim.api.nvim_buf_set_extmark(0, M.rule_selection_ns, srow, scol, {
+      hl_group = "Alternative.RuleSelectionBackdrop",
+      end_row = input.range[3],
+      end_col = input.range[4],
+    })
+
+    table.insert(by_row[srow], { col = scol, entry = entry, label = option_labels[i] })
+  end
+
+  local options = show_rule_id and _show_rule_options_verbose(by_row) or _show_rule_options(by_row)
+
+  -- Setup keyboard input handlers
+  -- We need to redraw first, otherwise, getcharstr will block the UI
+  vim.cmd("redraw")
   local ok, ret = pcall(vim.fn.getcharstr)
   if ok then
     local char = vim.fn.keytrans(ret)
@@ -422,10 +455,14 @@ function M._setup_select_handler(options, apply_cb, cancel_cb)
     end)
 
     if selected then
-      return apply_cb(selected.entry)
+      callback(selected.entry)
+      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
+    elseif char == "?" and not show_rule_id then
+      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
+      M._select_rule(entries, true, callback)
     else
       -- Any other keys would cancel the selection
-      return cancel_cb()
+      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
     end
   end
 end
@@ -460,7 +497,7 @@ function M.alternate(direction)
 
   local eligible_rules = M._eligible_rules()
   if #eligible_rules > 1 then
-    M._select_rule(eligible_rules, apply_rule)
+    M._select_rule(eligible_rules, false, apply_rule)
   elseif #eligible_rules == 1 then
     apply_rule(eligible_rules[1])
   end

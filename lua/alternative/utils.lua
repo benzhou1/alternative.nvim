@@ -189,4 +189,24 @@ function M.format_indentation(input)
   return table.concat(lines, "\n")
 end
 
+---Compare same dimension arrays
+---@param arr1 integer[]
+---@param arr2 integer[]
+---@return integer 1 if arr1 > arr2, 0 if arr1 == arr2, -1 if arr1 < arr2
+function M.compare_array(arr1, arr2)
+  if #arr1 ~= #arr2 then
+    error("Arrays have different dimensions")
+  end
+
+  for i = 1, #arr1 do
+    if arr1[i] < arr2[i] then
+      return -1
+    elseif arr1[i] > arr2[i] then
+      return 1
+    end
+  end
+
+  return 0
+end
+
 return M
