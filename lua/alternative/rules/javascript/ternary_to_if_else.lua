@@ -19,19 +19,14 @@ return {
       ]],
       container = "lexical_declaration",
     },
-    replacement = {
-      utils.format_indentation([[
-        const @variable
-        if (@condition) {
-          @variable = @consequence
-        } else {
-          @variable = @alternative
-        }
-      ]]),
-      utils.format_indentation([[
-        const @variable = @condition ? @alternative : @consequence
-      ]]),
-    },
+    replacement = utils.format_indentation([[
+      const @variable
+      if (@condition) {
+        @variable = @consequence
+      } else {
+        @variable = @alternative
+      }
+    ]]),
     preview = true,
     filetype = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
   },
@@ -56,6 +51,30 @@ return {
         @variable = @consequence
       } else {
         @variable = @alternative
+      }
+    ]]),
+    preview = true,
+    filetype = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
+  },
+  {
+    input = {
+      type = "query",
+      value = [[
+        (return_statement
+          (ternary_expression
+            condition: (_) @condition
+            consequence: (_) @consequence
+            alternative: (_) @alternative
+          )
+        ) @input @container
+      ]],
+      container = "assignment_expression",
+    },
+    replacement = utils.format_indentation([[
+      if (@condition) {
+        return @consequence
+      } else {
+        return @alternative
       }
     ]]),
     preview = true,
