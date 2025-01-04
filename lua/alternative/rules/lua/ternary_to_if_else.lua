@@ -21,7 +21,7 @@ return {
              )
             )
           )
-        ) @input @container
+        ) @input
       ]],
       container = "variable_declaration",
     },
@@ -54,7 +54,7 @@ return {
              right: (_) @or
            )
           )
-        ) @input @container
+        ) @input
       ]],
       container = "assignment_statement",
     },
@@ -84,7 +84,7 @@ return {
               right: (_) @or
             )
           )
-        ) @input @container
+        ) @input
       ]],
       container = "return_statement",
     },

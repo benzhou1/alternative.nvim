@@ -1,7 +1,5 @@
 local M = {}
 
-local utils = require("alternative.utils")
-
 local function compare_points_before(a, b)
   if a[1] == b[1] then
     return a[2] <= b[2]
@@ -30,18 +28,13 @@ end
 ---@return boolean
 local function filter_by_cursor(captures, lookahead)
   local input_capture = captures["input"][1]
-  local container_capture = captures["container"][1]
 
   -- If lookahead is false, the cursor must be inside the @input capture
-  if not lookahead then
-    return cursor_inside_node(input_capture)
-  end
-
-  -- If lookahead is true, the cursor can be before the @input, but not outside of the @container capture
-  return cursor_inside_node(container_capture) and cursor_before_node(input_capture)
+  -- If lookahead is true, the cursor can be before the @input
+  return lookahead and cursor_before_node(input_capture) or cursor_inside_node(input_capture)
 end
 
-local function find_root(node_type)
+local function find_closest_ancestor(node_type)
   local node = vim.treesitter.get_node({ bufnr = 0 })
   if not node then
     return nil
@@ -58,7 +51,7 @@ local function find_root(node_type)
 end
 
 ---@param query_string string
----@param lookahead boolean The result node must contain the cursor. If lookahead is false, the cursor must be inside the @input capture. If lookahead is true, the cursor can be before the @input, but not outside of the @container capture
+---@param lookahead boolean The result node must contain the cursor. If lookahead is false, the cursor must be inside the @input capture. If lookahead is true, the cursor can be before the @input
 ---@param container string?
 ---@return table<string, TSNode>? captures, integer[]? range
 function M.query(query_string, lookahead, container)
@@ -69,7 +62,16 @@ function M.query(query_string, lookahead, container)
   local parser = vim.treesitter.get_parser(bufnr, lang)
   local tree = parser:parse()[1]
 
-  local root_node = container and find_root(container) or tree:root()
+  local root_node
+  if container then
+    root_node = find_closest_ancestor(container)
+  else
+    root_node = tree:root()
+  end
+
+  if not root_node then
+    return nil
+  end
 
   for _, match in query:iter_matches(root_node, bufnr, 0, -1, { all = true }) do
     local captures = {}

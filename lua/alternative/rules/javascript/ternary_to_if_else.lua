@@ -15,7 +15,7 @@ return {
                 alternative: (_) @alternative
               )
           )
-        ) @input @container
+        ) @input
       ]],
       container = "lexical_declaration",
     },
@@ -42,7 +42,7 @@ return {
               consequence: (_) @consequence
               alternative: (_) @alternative
             )
-        ) @input @container
+        ) @input
       ]],
       container = "assignment_expression",
     },
@@ -66,7 +66,7 @@ return {
             consequence: (_) @consequence
             alternative: (_) @alternative
           )
-        ) @input @container
+        ) @input
       ]],
       container = "assignment_expression",
     },

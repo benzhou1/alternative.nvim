@@ -56,7 +56,7 @@ return {
               (_) @a
             ) @input
           (#not-type? @a "binary_expression")
-        ) @container
+        )
       ]],
       container = "if_statement",
     },
