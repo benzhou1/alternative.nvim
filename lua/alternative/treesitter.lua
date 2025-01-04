@@ -27,10 +27,10 @@ end
 
 ---@return boolean
 local function filter_by_cursor(captures, lookahead)
-  local input_capture = captures["input"][1]
+  local input_capture = captures["__input__"][1]
 
-  -- If lookahead is false, the cursor must be inside the @input capture
-  -- If lookahead is true, the cursor can be before the @input
+  -- If lookahead is false, the cursor must be inside the @__input__ capture
+  -- If lookahead is true, the cursor can be before the @__input__
   return lookahead and cursor_before_node(input_capture) or cursor_inside_node(input_capture)
 end
 
@@ -51,7 +51,7 @@ local function find_closest_ancestor(node_type)
 end
 
 ---@param query_string string
----@param lookahead boolean The result node must contain the cursor. If lookahead is false, the cursor must be inside the @input capture. If lookahead is true, the cursor can be before the @input
+---@param lookahead boolean The result node must contain the cursor. If lookahead is false, the cursor must be inside the @__input__ capture. If lookahead is true, the cursor can be before the @__input__
 ---@param container string?
 ---@return table<string, TSNode>? captures, integer[]? range
 function M.query(query_string, lookahead, container)
@@ -82,7 +82,7 @@ function M.query(query_string, lookahead, container)
     end
 
     if filter_by_cursor(captures, lookahead) then
-      local start_row, start_col, end_row, end_col = captures.input[1]:range()
+      local start_row, start_col, end_row, end_col = captures["__input__"][1]:range()
       local range = { start_row, start_col, end_row, end_col }
       return captures, range
     end

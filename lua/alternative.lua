@@ -161,7 +161,7 @@ function M._resolve_input(input, lookahead)
   end
 end
 
----Expand the capture in the replacement string. For example, given the string "not (@input)", it will replace @input with the content of the captured node
+---Expand the capture in the replacement string. For example, given the string "not (@__input__)", it will replace @__input__ with the content of the captured node
 ---@param text string
 ---@return string[]
 function M._expand_replacement_capture(text, captures)

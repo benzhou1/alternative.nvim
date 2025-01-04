@@ -7,7 +7,7 @@ local function if_statement_query()
             (parenthesized_expression
               (binary_expression
                 left: (_)
-                "%s" @input
+                "%s" @__input__
                 right: (_)
               )
             )
@@ -54,13 +54,13 @@ return {
           condition:
             (parenthesized_expression
               (_) @a
-            ) @input
+            ) @__input__
           (#not-type? @a "binary_expression")
         )
       ]],
       container = "if_statement",
     },
-    replacement = { "(!@input)" },
+    replacement = { "(!@__input__)" },
     lookahead = true,
     preview = true,
     filetype = { "javascript", "typescript", "javascriptreact", "typescriptreact" },

@@ -15,7 +15,7 @@ return {
                 alternative: (_) @alternative
               )
           )
-        ) @input
+        ) @__input__
       ]],
       container = "lexical_declaration",
     },
@@ -42,7 +42,7 @@ return {
               consequence: (_) @consequence
               alternative: (_) @alternative
             )
-        ) @input
+        ) @__input__
       ]],
       container = "assignment_expression",
     },
@@ -66,9 +66,9 @@ return {
             consequence: (_) @consequence
             alternative: (_) @alternative
           )
-        ) @input
+        ) @__input__
       ]],
-      container = "assignment_expression",
+      container = "return_statement",
     },
     replacement = utils.format_indentation([[
       if (@condition) {
