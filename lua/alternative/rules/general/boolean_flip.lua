@@ -1,18 +1,15 @@
 return {
-  {
-    input = {
-      type = "string",
-      value = "true",
-    },
-    replacement = "false",
-    lookahead = true,
+  input = {
+    type = "strings",
+    value = { "true", "false" },
   },
-  {
-    input = {
-      type = "string",
-      value = "false",
-    },
-    replacement = "true",
-    lookahead = true,
-  },
+  replacement = function(ctx)
+    local mapping = {
+      ["true"] = "false",
+      ["false"] = "true",
+    }
+
+    return mapping[ctx.original_text[1]]
+  end,
+  lookahead = true,
 }

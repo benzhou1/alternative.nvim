@@ -67,6 +67,33 @@ function M.search_word(word, lookahead)
     end
 
     return { cursor[1] - 1, start_idx - 1, cursor[1] - 1, end_idx }
+  else
+    return nil
+  end
+end
+
+---Similar to search_word, but search for multiple words
+---@param words string[]
+---@param lookahead boolean
+---@return integer[]? range
+function M.search_words(words, lookahead)
+  local text, range = M.get_current_word(false)
+
+  if vim.list_contains(words, text) then
+    return range
+  end
+
+  -- If not match, try to look ahead
+  if lookahead then
+    local cursor = vim.api.nvim_win_get_cursor(0)
+    local line = vim.api.nvim_get_current_line()
+
+    for _, word in ipairs(words) do
+      local start_idx, end_idx = line:find(word, cursor[2])
+      if start_idx and end_idx then
+        return { cursor[1] - 1, start_idx - 1, cursor[1] - 1, end_idx }
+      end
+    end
   end
 
   return nil

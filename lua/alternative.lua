@@ -131,15 +131,16 @@ function M._resolve_input(input, lookahead)
     end
 
     local current_word = vim.api.nvim_buf_get_text(0, range[1], range[2], range[3], range[4], {})
-    if current_word[1] ~= value then
-      return nil
-    end
-
     return { text = current_word, range = range, indent = indent }
   elseif input.type == "strings" then
     ---@cast value string[]
-    local current_word, range = utils.get_current_word(false)
-    return vim.list_contains(value, current_word) and { text = current_word, range = range, indent = indent } or nil
+    local range = utils.search_words(value, lookahead)
+    if not range then
+      return nil
+    end
+
+    local current_word = vim.api.nvim_buf_get_text(0, range[1], range[2], range[3], range[4], {})
+    return { text = current_word, range = range, indent = indent }
   elseif input.type == "callback" then
     local range = value()
     if range then
