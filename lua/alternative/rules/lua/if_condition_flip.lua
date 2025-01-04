@@ -3,10 +3,12 @@ local function if_statement_query()
     return string.format(
       [[
         (if_statement
-          condition: (binary_expression
-            left: (_)
-            "%s" @__input__
-            right: (_)
+          condition:
+            (binary_expression
+              left: (_)
+              "%s" @__input__
+              right: (_)
+            )
         )
       ]],
       operator
