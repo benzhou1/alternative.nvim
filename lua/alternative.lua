@@ -508,14 +508,6 @@ M.setup = function(config)
   config_mod.setup(config)
   treesitter.setup()
 
-  vim.keymap.set("n", "<C-.>", function()
-    M.alternate("forward")
-  end)
-
-  vim.keymap.set("n", "<C-,>", function()
-    M.alternate("backward")
-  end)
-
   M.preview_ns = vim.api.nvim_create_namespace("alternative.preview")
   M.preview_events_ns = vim.api.nvim_create_namespace("alternative.preview_events")
   M.preview_events_autocmd_group = vim.api.nvim_create_augroup("alternative.preview_events", { clear = true })
