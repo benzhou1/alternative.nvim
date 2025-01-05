@@ -71,7 +71,7 @@ require("alternative").setup({
 
 ## Setup
 
-You will need to call `require("timber").setup()` to intialize the plugin. The default configuration contains no rules. Users must manually pick them from a list of [built-in rules](#built-in-rules) or [create custom ones](#custom-rules):
+You will need to call `require("alternative").setup()` to intialize the plugin. The default configuration contains no rules. Users must manually pick them from a list of [built-in rules](#built-in-rules) or [create custom ones](#custom-rules). Built-in rules can be overriden.
 
 ```lua
 require("alternative").setup({
@@ -79,6 +79,10 @@ require("alternative").setup({
         -- Built-in rules
         "general.boolean_flip",
         "general.number_increment_decrement",
+        -- Built-in rules and override them
+        ["general.compare_operator_flip"] = {
+            preview = true
+        },
         -- Custom rules
         custom = {
 

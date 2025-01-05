@@ -174,6 +174,15 @@ function M._all_rules()
     handle_rule(rule, "custom." .. rule_id)
   end
 
+  -- Override built-in rules
+  for rule_id, extend in pairs(config_mod.config.rules) do
+    if rule_id ~= "custom" and type(rule_id) == "string" then
+      local content = require("alternative.rules." .. rule_id)
+      content = vim.tbl_deep_extend("force", content, extend)
+      handle_rule(content, rule_id)
+    end
+  end
+
   -- Built-in rules
   for _, rule_id in ipairs(config_mod.config.rules) do
     local content = require("alternative.rules." .. rule_id)

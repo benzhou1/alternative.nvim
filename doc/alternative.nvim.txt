@@ -28,24 +28,29 @@ how to make an edit: what is the input, what is the replacement, etc. For
 example, this is a rule that change `foo` to `bar`:
 >lua
   {
-    input = {
-      type = "string",
-      pattern = "foo",
-    },
-    replacement = "bar",
+      input = {
+	  type = "string",
+	  pattern = "foo",
+      },
+      replacement = "bar",
   }
 <
 ==============================================================================
 2. Built-in rules                            *alternative.nvim-built-in-rules*
 
 `alternative.nvim` provides a set of built-in rules. They are hosted in the
-`lua/alternative/rules` directory. Users can pick the rules in the config:
+`lua/alternative/rules` directory. Users can pick the rules in the config and
+override them.
 >lua
   require("alternative").setup({
-    rules = {
-      "general.boolean_flip",
-      "general.number_increment_decrement",
-    },
+      rules = {
+	  "general.boolean_flip",
+	  "general.number_increment_decrement",
+	  -- Built-in rules and override them
+	  ["general.compare_operator_flip"] = {
+	      preview = true
+	  },
+      },
   })
 <
 The rule name follows the rule file's path. For example, the rule in `lua/alternative/rules/general/boolean_flip.lua` is named `general.boolean_flip`.
