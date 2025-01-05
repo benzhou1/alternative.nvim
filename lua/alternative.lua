@@ -9,8 +9,9 @@ local utils = require("alternative.utils")
 ---@field query_captures table<string, TSNode>? The Treesitter query captures
 
 ---@class Alternative.Rule.Input
----@field type "string" | "strings" | "callback" | "query"
----@field value string | string[] | fun(): integer[]
+---@field type "string" | "strings" | "query" | "callback"
+---@field pattern string | string[] | fun(): integer[]
+---@field lookahead? boolean Whether to look ahead from the current cursor position to find the input. Only applied for input with type "string", "strings", or "query". Default: false
 ---@field container? string A Treesitter node type to limit the input range. Only applies if type is "query". When this is specified, we first traverse up the tree from the current node to find the container, then execute the query within the container. Defaults to use the root as the container.
 
 ---@class Alternative.Input
@@ -24,7 +25,8 @@ local utils = require("alternative.utils")
 ---@field trigger? fun(input: string): boolean Whether to trigger the replacement
 ---@field replacement string | string[] | fun(ctx: Alternative.Rule.ReplacementContext): string | string[] A string or a callback to resolve the string to replace
 ---@field preview? boolean Whether to show a preview of the replacement. Default: false
----@field lookahead? boolean Whether to look ahead to find the input. Only applies if input is a string. Default: false
+---@field description? string Description of the rule. This is used to generate the documentation.
+---@field example? {input: string, output: string} An example input and output. This is used to generate the documentation.
 
 ---@class Alternative.Preview
 ---@field text string[] The preview text
@@ -117,15 +119,15 @@ end
 ---2. A list of strings: the current word should be in the list
 ---3. A callback: the callback should return the range of the input text
 ---@param input Alternative.Rule.Input
----@param lookahead boolean Whether to look ahead to find the input. Only applies if input is a string
 ---@return Alternative.Input?
-function M._resolve_input(input, lookahead)
-  local value = input.value
+function M._resolve_input(input)
+  local pattern = input.pattern
   local indent = vim.fn.indent(vim.fn.line("."))
+  local lookahead = input.lookahead or false
 
   if input.type == "string" then
-    ---@cast value string
-    local range = utils.search_word(value, lookahead)
+    ---@cast pattern string
+    local range = utils.search_word(pattern, lookahead)
     if not range then
       return nil
     end
@@ -133,8 +135,8 @@ function M._resolve_input(input, lookahead)
     local current_word = vim.api.nvim_buf_get_text(0, range[1], range[2], range[3], range[4], {})
     return { text = current_word, range = range, indent = indent }
   elseif input.type == "strings" then
-    ---@cast value string[]
-    local range = utils.search_words(value, lookahead)
+    ---@cast pattern string[]
+    local range = utils.search_words(pattern, lookahead)
     if not range then
       return nil
     end
@@ -142,7 +144,7 @@ function M._resolve_input(input, lookahead)
     local current_word = vim.api.nvim_buf_get_text(0, range[1], range[2], range[3], range[4], {})
     return { text = current_word, range = range, indent = indent }
   elseif input.type == "callback" then
-    local range = value()
+    local range = pattern()
     if range then
       local input_text = vim.api.nvim_buf_get_text(0, range[1], range[2], range[3], range[4], {})
       return { text = input_text, range = range, indent = indent }
@@ -150,8 +152,8 @@ function M._resolve_input(input, lookahead)
       return nil
     end
   elseif input.type == "query" then
-    ---@cast value string
-    local ts_captures, range = treesitter.query(value, lookahead, input.container)
+    ---@cast pattern string
+    local ts_captures, range = treesitter.query(pattern, lookahead, input.container)
     if not range then
       return nil
     end
@@ -310,7 +312,7 @@ function M._eligible_rules()
       end
     end
 
-    local input = M._resolve_input(rule.input, rule.lookahead)
+    local input = M._resolve_input(rule.input)
 
     if input == nil then
       goto continue

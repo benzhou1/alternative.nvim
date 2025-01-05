@@ -1,0 +1,245 @@
+*alternative.nvim.txt* A plugin to edit code using predefined rules.
+
+Author: Duc Nguyen <https://www.github.com/Goose97>
+License: MIT License
+
+==============================================================================
+CONTENTS                                           *alternative.nvim-contents*
+
+  1. Introduction ............................ |alternative.nvim-introduction|
+  2. Built-in rules ........................ |alternative.nvim-built-in-rules|
+  3. Custom rules ............................ |alternative.nvim-custom-rules|
+    3.1. Input ......................... |alternative.nvim-custom-rules.input|
+    3.2. Replacement ............. |alternative.nvim-custom-rules.replacement|
+  4. API .............................................. |alternative.nvim-api|
+  5. Configuration ................................. |alternative.nvim-config|
+    6.1. Default configuration ............. |alternative.nvim-config.default|
+    6.2. Keymaps ........................... |alternative.nvim-config.keymaps|
+
+==============================================================================
+1. Introduction                                *alternative.nvim-introduction*
+
+|alternative.nvim| is a plugin for editting the code using predefined rules.
+It provides a quick way to edit common code patterns. Users can pick from
+a list of built-in rules or create their own.
+
+Rule is the basic unit of |alternative.nvim|. A rule is a spec that defines
+how to make an edit: what is the input, what is the replacement, etc. For
+example, this is a rule that change `foo` to `bar`:
+>lua
+  {
+    input = {
+      type = "string",
+      pattern = "foo",
+    },
+    replacement = "bar",
+  }
+<
+==============================================================================
+2. Built-in rules                            *alternative.nvim-built-in-rules*
+
+`alternative.nvim` provides a set of built-in rules. They are hosted in the
+`lua/alternative/rules` directory. Users can pick the rules in the config:
+>lua
+  require("alternative").setup({
+    rules = {
+      "general.boolean_flip",
+      "general.number_increment_decrement",
+    },
+  })
+<
+The rule name follows the rule file's path. For example, the rule in `lua/alternative/rules/general/boolean_flip.lua` is named `general.boolean_flip`.
+
+See README.md for the list of built-in rules.
+
+==============================================================================
+3. Custom rules                                *alternative.nvim-custom-rules*
+
+Users can create their own rules. A rule is a table with the following fields:
+
+- `input`: resolved to the input range. It answers "what to replace?".
+- `replacement`: resolved to the string to replace. It answers "what to replace the input with?".
+- `trigger`: a predicate function to determine whether to trigger the rule.
+- `preview`: whether to show a preview of the replacement. Default: false.
+
+------------------------------------------------------------------------------
+3.1. Rule Input                          *alternative.nvim-custom-rules.input*
+
+`input` can be one of these types:
+
+The input can be one of these types:
+
+- `string`: simple string pattern lookup >lua
+
+  -- Rule definition
+  foo = {
+      input = {
+	  type = "string",
+	  -- If the current word under the cursor matches this, the current word becomes the input
+	  pattern = "bar",
+	  -- If true, when the current word doesn't match, look ahead in the same line to find the input
+	  lookahead = true,
+      }
+  }
+<
+- `strings`: similar to the `string` type, but it will match any of the strings >lua
+
+  -- Rule definition
+  foo = {
+      input = {
+	  type = "strings",
+	  -- Run the pattern on each string. The first match becomes the input
+	  pattern = { "bar", "baz" },
+	  lookahead = true,
+      }
+  }
+<
+- `query`: a Treesitter query. There are two requirements for this rule:
+  1. The query must contain a capture named `__input__`. If the query matches, this capture becomes the input.
+  2. The rule must have a `container` field. This field will limit the range when running the query. We first find the closest ancestor of the current node with node type equals `container`. Then we run the query within the container. If no container node is found, the rule is skipped. >lua
+
+  -- Rule definition
+  foo = {
+      input = {
+	  type = "query",
+	  -- Run the pattern on each string. The first match becomes the input
+	  pattern = [[
+	      (expression_list
+		  value: (binary_expression
+		      left:
+		      (binary_expression
+			  left: (_) @condition
+			  "and"
+			  right: (_) @first
+		      )
+		     "or"
+		     right: (_) @second
+		  )
+	      ) @__input__
+	  ]],
+	  -- This mean the cursor must be inside an `expression_list` node
+	  -- local foo = a an|d b or c --> This will trigger
+	  -- local fo|o = a and b or c --> This won't trigger
+	  container = "expression_list",
+      }
+  }
+<
+
+- `callback`: a function that returns the range of the input text >lua
+
+  -- Rule definition
+  foo = {
+      input = {
+	  type = "callback",
+	  pattern = function(),
+	      local line = vim.fn.line(".")
+	      -- First 10 characters of the current line
+	      -- Index is 0-based
+	      return {line - 1, 0, line - 1, 10}
+	  end,
+      }
+  }
+<
+------------------------------------------------------------------------------
+3.2. Rule replacement              *alternative.nvim-custom-rules.replacement*
+
+The `replacement` can be one of these:
+
+1. A string: replace the input with the string >lua
+
+  -- Rule definition
+  foo = {
+      input = {
+	  type = "string",
+	  pattern = "bar",
+      },
+      replacement = "baz",
+  }
+<
+
+2. An array of strings: if `preview` is true, you can cycle through these strings to preview the replacement. If `preview` is false, the first string will be used as the replacement. >lua
+
+  -- Rule definition
+  foo = {
+      input = {
+	  type = "string",
+	  pattern = "bar",
+      },
+      replacement = { "baz", "qux" },
+      preview = true,
+  }
+<
+3. A function: a function that takes a `Alternative.Rule.ReplacementContext` as the argument and returns a string or an array of strings. The result is used as the replacement. >lua
+
+  ---@class Alternative.Rule.ReplacementContext
+  ---@field original_text string[]
+  ---@field current_text string[] The current visible text. If a preview is showing, it's the preview text. Otherwise, it's the original_text
+  ---@field direction "forward" | "backward" The cycle direction
+  ---@field query_captures table<string, TSNode>? The Treesitter query captures
+<
+In case the input is a `query`, the query captures can be used in the replacement template. This allows you to create some complex rules that are syntax-aware. For example: >lua
+
+------------------------------------------------------------------------------
+4. API                                                  *alternative.nvim-api*
+
+alternate(direction)                                 *alternative.alternate()*
+
+  Trigger alternative rule in the given direction.
+
+  Parameters: ~
+    {direction}        (string)                Can be "forward" or "backward"
+
+==============================================================================
+4. Configuration                                     *alternative.nvim-config*
+
+To use a custom configuration, pass it to the *alternative.setup* function.
+
+alternative.setup({opts})                                *alternative.setup()*
+
+  Initialize the plugin.
+
+  Parameters: ~
+    {opts} (table)  options to pass to the setup function
+
+  Options: ~
+    {rules}            (table)                    A table of rules to use.
+						  It can be a mixed of built-in rules
+						  and custom rules.
+                                                  See |alternative.built-in-rules| and
+						  |alternative.custom-rules|
+
+------------------------------------------------------------------------------
+4.1. Default configuration                   *alternative.nvim-config.default*
+>lua
+  {
+    rules = {}
+    keymaps = {
+      -- Set to false to disable the default keymap for specific actions
+      -- alternative_next = false,
+      alternative_next = "<C-.>",
+      alternative_prev = "<C-,>",
+    },
+  }
+<
+------------------------------------------------------------------------------
+4.2. Keymaps                                 *alternative.nvim-config.keymaps*
+
+|alternative.nvim| provides default keymaps for common actions:
+
+  Action name                           Mapping      Lua API ~
+  -----------------------------------------------------------------------------------------------------------------
+  alternative_next                      <C-.>        vim.keymap.set({ "n", "v" }, "<C-.>", function()
+                                                       require("alternative").alternate("forward")
+                                                     end)
+  -----------------------------------------------------------------------------------------------------------------
+  alternative_prev                      <C-,>        vim.keymap.set({ "n", "v" }, "<C-.>", function()
+                                                       require("alternative").alternate("backward")
+                                                     end)
+
+To disable default keymaps, you can set `keymaps[action] = false` to disable a specific action. For example: >lua
+
+  keymaps = {
+    alternative_next = false,
+  }
+<
+vim:tw=78:ts=8:noet:ft=help:norl:

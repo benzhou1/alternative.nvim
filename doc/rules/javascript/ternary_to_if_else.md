@@ -1,3 +1,11 @@
+# javascript.ternary_to_if_else
+
+## Source Code
+
+<details>
+<summary><strong>Show</strong></summary>
+
+```lua
 local utils = require("alternative.utils")
 
 return {
@@ -121,3 +129,66 @@ return {
     },
   },
 }
+```
+
+</details>
+
+## Examples
+
+> [!NOTE]
+> `|` denotes the cursor position.
+
+### Convert ternary expression in declaration
+
+- Input:
+
+```lua
+const fo|o = a ? b : c
+```
+
+- Output:
+
+```lua
+const foo
+if (a) {
+  foo = b
+} else {
+  foo = c
+}
+```
+
+### Convert ternary expression in assignment
+
+- Input:
+
+```lua
+fo|o = a ? b : c
+```
+
+- Output:
+
+```lua
+if (a) {
+  foo = b
+} else {
+  foo = c
+}
+```
+
+### Convert ternary expression in return statement
+
+- Input:
+
+```lua
+return a ? b : c
+```
+
+- Output:
+
+```lua
+if (a) {
+  return b
+} else {
+  return c
+}
+```

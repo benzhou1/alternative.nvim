@@ -1,3 +1,11 @@
+# lua.if_condition_flip
+
+## Source Code
+
+<details>
+<summary><strong>Show</strong></summary>
+
+```lua
 local function if_statement_query()
   local clause = function(operator)
     return string.format(
@@ -69,3 +77,39 @@ return {
     },
   },
 }
+```
+
+</details>
+
+## Examples
+
+> [!NOTE]
+> `|` denotes the cursor position.
+
+### Flip the compare operator
+
+- Input:
+
+```lua
+if a| == b then return true end
+```
+
+- Output:
+
+```lua
+if a ~= b then return true end
+```
+
+### Append not
+
+- Input:
+
+```lua
+i|f foo(bar, baz) then return true end
+```
+
+- Output:
+
+```lua
+if not (foo(bar, baz)) then return true end
+```

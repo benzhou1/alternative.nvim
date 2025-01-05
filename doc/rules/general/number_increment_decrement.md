@@ -1,3 +1,11 @@
+# general.number_increment_decrement
+
+## Source Code
+
+<details>
+<summary><strong>Show</strong></summary>
+
+```lua
 local utils = require("alternative.utils")
 
 return {
@@ -16,3 +24,25 @@ return {
     output = "a + 2",
   },
 }
+```
+
+</details>
+
+## Examples
+
+> [!NOTE]
+> `|` denotes the cursor position.
+
+### Increment or decrement the number
+
+- Input:
+
+```lua
+a| + 1
+```
+
+- Output:
+
+```lua
+a + 2
+```

@@ -1,3 +1,11 @@
+# lua.ternary_to_if_else
+
+## Source Code
+
+<details>
+<summary><strong>Show</strong></summary>
+
+```lua
 local utils = require("alternative.utils")
 
 return {
@@ -139,3 +147,66 @@ return {
     },
   },
 }
+```
+
+</details>
+
+## Examples
+
+> [!NOTE]
+> `|` denotes the cursor position.
+
+### Convert ternary expression in declaration
+
+- Input:
+
+```lua
+local fo|o = a and b or c
+```
+
+- Output:
+
+```lua
+local foo
+if a then
+  foo = b
+else
+  foo = c
+end
+```
+
+### Convert ternary expression in assignment
+
+- Input:
+
+```lua
+fo|o = a and b or c
+```
+
+- Output:
+
+```lua
+if a then
+  foo = b
+else
+  foo = c
+end
+```
+
+### Convert ternary expression in return statement
+
+- Input:
+
+```lua
+return a and b or c
+```
+
+- Output:
+
+```lua
+if a then
+  return b
+else
+  return c
+end
+```

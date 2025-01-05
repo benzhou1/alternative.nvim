@@ -1,3 +1,11 @@
+# javascript.if_condition_flip
+
+## Source Code
+
+<details>
+<summary><strong>Show</strong></summary>
+
+```lua
 local utils = require("alternative.utils")
 
 local function if_statement_query()
@@ -94,3 +102,47 @@ return {
     },
   },
 }
+```
+
+</details>
+
+## Examples
+
+> [!NOTE]
+> `|` denotes the cursor position.
+
+### Flip the compare operator
+
+- Input:
+
+```lua
+if (a| == b) {
+  return true
+}
+```
+
+- Output:
+
+```lua
+if (a != b) {
+  return true
+}
+```
+
+### Use negation operator
+
+- Input:
+
+```lua
+i|f (foo(bar, baz)) {
+  return true
+}
+```
+
+- Output:
+
+```lua
+if (!(foo(bar, baz))) {
+  return true
+}
+```

@@ -1,3 +1,11 @@
+# general.boolean_flip
+
+## Source Code
+
+<details>
+<summary><strong>Show</strong></summary>
+
+```lua
 return {
   input = {
     type = "strings",
@@ -18,3 +26,25 @@ return {
     output = "local flag = false",
   },
 }
+```
+
+</details>
+
+## Examples
+
+> [!NOTE]
+> `|` denotes the cursor position.
+
+### Change true to false and vice versa
+
+- Input:
+
+```lua
+local fla|g = true
+```
+
+- Output:
+
+```lua
+local flag = false
+```
