@@ -155,19 +155,29 @@ end
 function M._all_rules()
   local _all = {}
 
-  for _, rule_id in ipairs(config_mod.config.rules) do
-    local content = require("alternative.rules." .. rule_id)
-
+  local function handle_rule(rule_content, rule_id)
     -- A group of rules
-    if content[1] then
-      for _, rule in ipairs(content) do
+    if rule_content[1] then
+      for _, rule in ipairs(rule_content) do
         rule.__id__ = rule_id
         table.insert(_all, rule)
       end
     else
-      content.__id__ = rule_id
-      table.insert(_all, content)
+      rule_content.__id__ = rule_id
+      table.insert(_all, rule_content)
     end
+  end
+
+  -- Custom rules
+  local custom_rules = config_mod.config.rules.custom or {}
+  for rule_id, rule in pairs(custom_rules) do
+    handle_rule(rule, "custom." .. rule_id)
+  end
+
+  -- Built-in rules
+  for _, rule_id in ipairs(config_mod.config.rules) do
+    local content = require("alternative.rules." .. rule_id)
+    handle_rule(content, rule_id)
   end
 
   return _all
