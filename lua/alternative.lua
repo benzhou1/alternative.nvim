@@ -1,5 +1,7 @@
 local config_mod = require("alternative.config")
 local treesitter = require("alternative.treesitter")
+local preview = require("alternative.preview")
+local select = require("alternative.select")
 local utils = require("alternative.utils")
 
 ---@class Alternative.Rule.ReplacementContext
@@ -14,12 +16,6 @@ local utils = require("alternative.utils")
 ---@field lookahead? boolean Whether to look ahead from the current cursor position to find the input. Only applied for input with type "string", "strings", or "query". Default: false
 ---@field container? string A Treesitter node type to limit the input range. Only applies if type is "query". When this is specified, we first traverse up the tree from the current node to find the container, then execute the query within the container. Defaults to use the root as the container.
 
----@class Alternative.Input
----@field text string[]
----@field range integer[]
----@field ts_captures table<string, TSNode[]>?
----@field indent integer
-
 ---@class Alternative.Rule
 ---@field input Alternative.Rule.Input How to get the input range
 ---@field trigger? fun(input: string): boolean Whether to trigger the replacement
@@ -28,91 +24,11 @@ local utils = require("alternative.utils")
 ---@field description? string Description of the rule. This is used to generate the documentation.
 ---@field example? {input: string, output: string} An example input and output. This is used to generate the documentation.
 
----@class Alternative.Preview
----@field text string[] The preview text
----@field undo fun()
-
 ---@class Alternative.Module
----@field input Alternative.Input?
 ---@field current_rule {rule: Alternative.Rule, multi_choice_index: integer?}?
----@field preview Alternative.Preview?
----@field preview_events_cancel fun()?
 local M = {
-  input = nil,
   current_rule = nil,
-  preview = nil,
-  preview_events_cancel = nil,
 }
-
----@param replacement string[]
----@param input Alternative.Input
-function M._apply_preview(replacement, input)
-  if M.preview then
-    -- Undo previous preview if needed
-    M.preview.undo()
-  end
-
-  local pre_conceallevel = vim.opt.conceallevel
-  local pre_concealcursor = vim.opt.concealcursor
-  vim.opt.conceallevel = 2
-  vim.opt.concealcursor = "n"
-
-  local virt_text = { { replacement[1], "Comment" } }
-  local virt_lines
-  if #replacement > 1 then
-    virt_lines = vim
-      .iter(replacement)
-      :skip(1)
-      :map(function(text)
-        return { { text, "Comment" } }
-      end)
-      :totable()
-  end
-
-  local range = input.range
-  local extmark_id = vim.api.nvim_buf_set_extmark(0, M.preview_ns, range[1], range[2], {
-    end_row = range[3],
-    end_col = range[4],
-    conceal = "",
-    virt_text = virt_text,
-    virt_lines = virt_lines,
-    virt_text_pos = "inline",
-  })
-
-  M.preview = {
-    text = replacement,
-    range = range,
-    undo = function()
-      vim.opt.conceallevel = pre_conceallevel
-      vim.opt.concealcursor = pre_concealcursor
-      vim.api.nvim_buf_del_extmark(0, M.preview_ns, extmark_id)
-    end,
-  }
-end
-
-function M._reset()
-  M.input = nil
-  M.current_rule = nil
-
-  if M.preview then
-    M.preview.undo()
-    M.preview = nil
-  end
-
-  if M.preview_events_cancel then
-    M.preview_events_cancel()
-    M.preview_events_cancel = nil
-  end
-end
-
-function M._commit_preview_change()
-  if M.preview and M.input then
-    local range = M.input.range
-    vim.api.nvim_buf_set_text(0, range[1], range[2], range[3], range[4], M.preview.text)
-
-    M._reset()
-  end
-end
 
 ---The input can be either:
 ---1. A string: the current word should be equal to the input
@@ -257,31 +173,7 @@ function M._all_rules()
   return _all
 end
 
-function M._setup_preview_events()
-  if M.preview_events_cancel then
-    return
-  end
-
-  vim.api.nvim_create_autocmd("CursorMoved", {
-    group = M.preview_events_autocmd_group,
-    callback = M._commit_preview_change,
-    once = true,
-  })
-
-  M.preview_events_cancel = function()
-    vim.on_key(nil, M.preview_events_ns)
-    vim.api.nvim_clear_autocmds({
-      group = M.preview_events_autocmd_group,
-      event = "CursorMoved",
-    })
-  end
-
-  vim.on_key(function(_, typed)
-    if vim.fn.keytrans(typed) == "<Esc>" then
-      M._reset()
-    end
-  end, M.preview_events_ns)
-end
+function M._setup_preview_events() end
 
 ---@param direction "forward" | "backward"
 function M._cycle_alternative(direction)
@@ -292,10 +184,11 @@ function M._cycle_alternative(direction)
 
   ---@type Alternative.Rule
   local current_rule = M.current_rule.rule
-  local replacement, multi_choice_index = M._resolve_replacement(current_rule.replacement, M.input, direction)
+  local replacement, multi_choice_index =
+    M._resolve_replacement(current_rule.replacement, preview.previewing_input(), direction)
 
   if replacement then
-    M._apply_preview(replacement, M.input)
+    preview.apply(replacement, preview.previewing_input())
     M.current_rule.multi_choice_index = multi_choice_index
   end
 end
@@ -336,140 +229,6 @@ function M._eligible_rules()
   return result
 end
 
-local function _show_rule_options(rules_by_row)
-  local options = {}
-
-  -- If there are multiple items on the same row and same column, display them
-  -- in separate lines
-  for row, items in pairs(rules_by_row) do
-    table.sort(items, function(a, b)
-      return a.col < b.col
-    end)
-
-    local function _make_line(_items)
-      local seen = {}
-      local duplicate = {}
-      local line = ""
-
-      for _, item in ipairs(_items) do
-        if not seen[item.col] then
-          table.insert(options, { label = item.label, entry = item.entry })
-          line = line .. string.rep(" ", (item.col - #line)) .. item.label
-
-          seen[item.col] = true
-        else
-          table.insert(duplicate, item)
-        end
-      end
-
-      return line, duplicate
-    end
-
-    local _items = items
-    local lines = {}
-    while #_items > 0 do
-      local line, duplicate = _make_line(_items)
-      table.insert(lines, line)
-      _items = duplicate
-    end
-
-    local virt_lines = vim
-      .iter(lines)
-      :map(function(line)
-        return { { line, "CursorLineNr" } }
-      end)
-      :totable()
-
-    vim.api.nvim_buf_set_extmark(0, M.rule_selection_ns, row, 0, {
-      virt_lines = virt_lines,
-    })
-  end
-
-  local current_row = vim.fn.line(".") - 1
-  vim.api.nvim_buf_set_extmark(0, M.rule_selection_ns, current_row, 0, {
-    virt_text = { { string.rep(" ", 4) .. "? to show rule name", "Comment" } },
-    virt_text_pos = "eol",
-  })
-
-  return options
-end
-
-local function _show_rule_options_verbose(rules_by_row)
-  local options = {}
-
-  for row, items in pairs(rules_by_row) do
-    local virt_lines = vim
-      .iter(items)
-      :map(function(item)
-        table.insert(options, { label = item.label, entry = item.entry })
-
-        local split = vim.split(item.entry.rule.__id__, ".", { plain = true })
-        local short_id = split[#split]
-        return {
-          { string.rep(" ", item.col) },
-          { item.label, "CursorLineNr" },
-          { string.format(" (%s)", short_id), "Comment" },
-        }
-      end)
-      :totable()
-
-    vim.api.nvim_buf_set_extmark(0, M.rule_selection_ns, row, 0, {
-      virt_lines = virt_lines,
-    })
-  end
-
-  return options
-end
-
----@param entries {rule: Alternative.Rule, input: Alternative.Input}[]
----@param show_rule_id boolean Whether to show the rule id
----@param callback fun(entry: {rule: Alternative.Rule, input: Alternative.Input}) Callback to be called after the user selects a rule
-function M._select_rule(entries, show_rule_id, callback)
-  local option_labels = { "a", "s", "d", "f", "g", "h", "j", "k", "l", ";" }
-  local by_row = vim.defaulttable(function()
-    return {}
-  end)
-
-  for i, entry in ipairs(entries) do
-    local input = entry.input
-
-    local srow = input.range[1]
-    local scol = input.range[2]
-    vim.api.nvim_buf_set_extmark(0, M.rule_selection_ns, srow, scol, {
-      hl_group = "Alternative.RuleSelectionBackdrop",
-      end_row = input.range[3],
-      end_col = input.range[4],
-    })
-
-    table.insert(by_row[srow], { col = scol, entry = entry, label = option_labels[i] })
-  end
-
-  local options = show_rule_id and _show_rule_options_verbose(by_row) or _show_rule_options(by_row)
-
-  -- Setup keyboard input handlers
-  -- We need to redraw first, otherwise, getcharstr will block the UI
-  vim.cmd("redraw")
-  local ok, ret = pcall(vim.fn.getcharstr)
-  if ok then
-    local char = vim.fn.keytrans(ret)
-
-    local selected = vim.iter(options):find(function(option)
-      return option.label == char
-    end)
-
-    if selected then
-      callback(selected.entry)
-      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
-    elseif char == "?" and not show_rule_id then
-      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
-      M._select_rule(entries, true, callback)
-    else
-      -- Any other keys would cancel the selection
-      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
-    end
-  end
-end
-
 ---@param direction "forward" | "backward"
 function M.alternate(direction)
   local function apply_rule(entry)
@@ -481,26 +240,22 @@ function M.alternate(direction)
 
     vim.api.nvim_win_set_cursor(0, { input.range[1] + 1, input.range[2] })
     if rule.preview then
-      M._apply_preview(replacement, input)
+      preview.apply(replacement, input)
       M.current_rule = { rule = rule, multi_choice_index = multi_choice_index }
-
-      -- Save the input so we don't have to compute it again when cycling through alternatives
-      M.input = input
-
-      vim.schedule(M._setup_preview_events)
+      vim.schedule(preview.setup_cancel_events)
     else
       vim.api.nvim_buf_set_text(0, input.range[1], input.range[2], input.range[3], input.range[4], replacement)
     end
   end
 
   -- If we are in preview mode, cycle through the choices
-  if M.current_rule and M.preview then
+  if M.current_rule and preview.is_previewing() then
     return M._cycle_alternative(direction)
   end
 
   local eligible_rules = M._eligible_rules()
   if #eligible_rules > 1 then
-    M._select_rule(eligible_rules, false, apply_rule)
+    select.show(eligible_rules, false, apply_rule)
   elseif #eligible_rules == 1 then
     apply_rule(eligible_rules[1])
   end
@@ -510,24 +265,16 @@ M.setup = function(config)
   config_mod.setup(config)
   treesitter.setup()
 
-  M.preview_ns = vim.api.nvim_create_namespace("alternative.preview")
-  M.preview_events_ns = vim.api.nvim_create_namespace("alternative.preview_events")
-  M.preview_events_autocmd_group = vim.api.nvim_create_augroup("alternative.preview_events", { clear = true })
+  preview.setup()
+  preview.on_reset(function()
+    M.current_rule = nil
+  end)
 
-  M.rule_selection_ns = vim.api.nvim_create_namespace("alternative.rule_selection")
-  M.rule_selection_events_ns = vim.api.nvim_create_namespace("alternative.rule_selection_events")
+  select.setup()
 
   M.rules = M._all_rules()
 
   vim.api.nvim_set_hl(0, "Alternative.RuleSelectionBackdrop", { link = "Comment" })
-
-  local events = { "InsertEnter", "BufLeave", "WinLeave", "CmdlineEnter" }
-  for _, event in ipairs(events) do
-    vim.api.nvim_create_autocmd(event, {
-      group = M.preview_events_autocmd_group,
-      callback = M._commit_preview_change,
-    })
-  end
 end
 
 return M
