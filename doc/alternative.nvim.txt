@@ -13,8 +13,8 @@ CONTENTS                                           *alternative.nvim-contents*
     3.2. Replacement ............. |alternative.nvim-custom-rules.replacement|
   4. API .............................................. |alternative.nvim-api|
   5. Configuration ................................. |alternative.nvim-config|
-    6.1. Default configuration ............. |alternative.nvim-config.default|
-    6.2. Keymaps ........................... |alternative.nvim-config.keymaps|
+    5.1. Default configuration ............. |alternative.nvim-config.default|
+    5.2. Keymaps ........................... |alternative.nvim-config.keymaps|
 
 ==============================================================================
 1. Introduction                                *alternative.nvim-introduction*
@@ -195,7 +195,7 @@ alternate(direction)                                 *alternative.alternate()*
     {direction}        (string)                Can be "forward" or "backward"
 
 ==============================================================================
-4. Configuration                                     *alternative.nvim-config*
+5. Configuration                                     *alternative.nvim-config*
 
 To use a custom configuration, pass it to the *alternative.setup* function.
 
@@ -214,7 +214,7 @@ alternative.setup({opts})                                *alternative.setup()*
 						  |alternative.custom-rules|
 
 ------------------------------------------------------------------------------
-4.1. Default configuration                   *alternative.nvim-config.default*
+5.1. Default configuration                   *alternative.nvim-config.default*
 >lua
   {
     rules = {}
@@ -227,7 +227,7 @@ alternative.setup({opts})                                *alternative.setup()*
   }
 <
 ------------------------------------------------------------------------------
-4.2. Keymaps                                 *alternative.nvim-config.keymaps*
+5.2. Keymaps                                 *alternative.nvim-config.keymaps*
 
 |alternative.nvim| provides default keymaps for common actions:
 
