@@ -2,6 +2,8 @@ local M = {}
 
 local default_config = {
   rules = {},
+  -- The labels to select between multiple rules
+  select_labels = "asdfghjkl",
   keymaps = {
     -- Set to false to disable the default keymap for specific actions
     -- alternative_next = false,

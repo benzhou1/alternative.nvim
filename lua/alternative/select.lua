@@ -89,7 +89,9 @@ end
 ---@param show_rule_id boolean Whether to show the rule id
 ---@param callback fun(entry: {rule: Alternative.Rule, input: Alternative.Input}) Callback to be called after the user selects a rule
 function M.show(entries, show_rule_id, callback)
-  local option_labels = { "a", "s", "d", "f", "g", "h", "j", "k", "l", ";" }
+  local config = require("alternative.config").config
+  local option_labels = vim.split(config.select_labels, "", { plain = true })
+
   local by_row = vim.defaulttable(function()
     return {}
   end)

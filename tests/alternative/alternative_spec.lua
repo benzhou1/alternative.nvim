@@ -61,6 +61,59 @@ describe("config", function()
       ]],
     })
   end)
+
+  it("allows customize select labels", function()
+    alternative.setup({
+      rules = {
+        custom = {
+          zero_to_one = {
+            input = { type = "string", pattern = "0", lookahead = true },
+            replacement = "1",
+          },
+          one_to_zero = {
+            input = { type = "string", pattern = "1", lookahead = true },
+            replacement = "0",
+          },
+        },
+      },
+      select_labels = "xyz",
+    })
+
+    stub(vim.fn, "getcharstr")
+
+    helper.assert_scenario({
+      input = [[
+        local fo|o = "01"
+      ]],
+      filetype = "lua",
+      action = function()
+        ---@diagnostic disable-next-line: undefined-field
+        vim.fn.getcharstr.returns("x")
+        alternative.alternate("forward")
+      end,
+      expected = [[
+        local foo = "11"
+      ]],
+    })
+
+    helper.assert_scenario({
+      input = [[
+        local fo|o = "01"
+      ]],
+      filetype = "lua",
+      action = function()
+        ---@diagnostic disable-next-line: undefined-field
+        vim.fn.getcharstr.returns("y")
+        alternative.alternate("forward")
+      end,
+      expected = [[
+        local foo = "00"
+      ]],
+    })
+
+    ---@diagnostic disable-next-line: undefined-field
+    vim.fn.getcharstr:revert()
+  end)
 end)
 
 describe("string type input", function()

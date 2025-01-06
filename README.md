@@ -97,6 +97,8 @@ require("alternative").setup({
 ```lua
 {
     rules = {},
+    -- The labels to select between multiple rules
+    select_labels = "asdfghjkl",
     keymaps = {
         -- Set to false to disable the default keymap for specific actions
         -- alternative_next = false,
@@ -315,7 +317,6 @@ foo = {
 ---@field current_text string[] The current visible text. If a preview is showing, it's the preview text. Otherwise, it's the original_text
 ---@field direction "forward" | "backward" The cycle direction
 ---@field query_captures table<string, TSNode>? The Treesitter query captures
-
 ```
 
 </details>
@@ -355,3 +356,7 @@ foo = {
 
 See [lua.ternary_to_if_else](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/lua/ternary_to_if_else.md)
 for an example.
+
+### Rule selection
+
+There are cases that trigger multiple rules. In these situations, you can select which rule to apply by pressing corresponding labels.
