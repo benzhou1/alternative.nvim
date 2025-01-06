@@ -54,21 +54,24 @@ return {
     input = {
       type = "query",
       pattern = [[
-        (assignment_statement
-          (variable_list) @variable
-          (expression_list
-            value: (binary_expression
-             left:
-               (binary_expression
-                 left: (_) @condition
-                 "and"
-                 right: (_) @and
-               )
-             "or"
-             right: (_) @or
-           )
-          )
-        ) @__input__
+        (
+          (assignment_statement
+            (variable_list) @variable
+            (expression_list
+              value: (binary_expression
+               left:
+                 (binary_expression
+                   left: (_) @condition
+                   "and"
+                   right: (_) @and
+                 )
+               "or"
+               right: (_) @or
+             )
+            )
+          ) @__input__
+          (#not-has-parent? @__input__ variable_declaration)
+        )
       ]],
       container = "assignment_statement",
     },

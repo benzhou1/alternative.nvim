@@ -17,7 +17,7 @@ vim.cmd("runtime plugin/plenary.vim")
 require("plenary.busted")
 
 require("nvim-treesitter.configs").setup({
-  ensure_installed = { "lua" },
+  ensure_installed = { "lua", "javascript" },
   sync_install = true,
   auto_install = false,
   indent = { enable = true },
