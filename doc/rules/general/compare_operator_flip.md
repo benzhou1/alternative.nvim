@@ -184,6 +184,8 @@ return vim.iter({ base, lua, javascript }):flatten():totable()
 
 ### Change < to >
 
+
+
 - Input:
 
 ```lua
@@ -197,6 +199,8 @@ a > b
 ```
 
 ### Change > to <
+
+
 
 - Input:
 
@@ -212,6 +216,8 @@ a < b
 
 ### Change <= to >=
 
+
+
 - Input:
 
 ```lua
@@ -225,6 +231,8 @@ a >= b
 ```
 
 ### Change >= to <=
+
+
 
 - Input:
 
@@ -240,6 +248,8 @@ a <= b
 
 ### Change == to ~=
 
+
+
 - Input:
 
 ```lua
@@ -253,6 +263,8 @@ a ~= b
 ```
 
 ### Change ~= to ==
+
+
 
 - Input:
 
@@ -268,6 +280,8 @@ a == b
 
 ### Change == to !=
 
+
+
 - Input:
 
 ```lua
@@ -281,6 +295,8 @@ a != b
 ```
 
 ### Change != to ==
+
+
 
 - Input:
 
@@ -296,6 +312,8 @@ a == b
 
 ### Change === to !==
 
+
+
 - Input:
 
 ```lua
@@ -309,6 +327,8 @@ a !== b
 ```
 
 ### Change !== to ===
+
+
 
 - Input:
 

@@ -113,6 +113,8 @@ return {
 
 ### Flip the compare operator
 
+
+
 - Input:
 
 ```lua
@@ -130,6 +132,8 @@ if (a != b) {
 ```
 
 ### Use negation operator
+
+
 
 - Input:
 

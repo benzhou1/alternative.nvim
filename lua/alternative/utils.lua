@@ -236,4 +236,13 @@ function M.compare_array(arr1, arr2)
   return 0
 end
 
+---@param range integer[]
+function M.cursor_in_range(range)
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  -- Plus 1 because cursor position is 1-indexed
+  local after_range_start = M.compare_array({ range[1] + 1, range[2] }, cursor)
+  local before_range_end = M.compare_array({ range[3] + 1, range[4] }, cursor)
+  return vim.list_contains({ -1, 0 }, after_range_start) and vim.list_contains({ 0, 1 }, before_range_end)
+end
+
 return M

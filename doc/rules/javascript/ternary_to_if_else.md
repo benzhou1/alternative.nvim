@@ -140,6 +140,8 @@ return {
 
 ### Convert ternary expression in declaration
 
+
+
 - Input:
 
 ```lua
@@ -159,6 +161,8 @@ if (a) {
 
 ### Convert ternary expression in assignment
 
+
+
 - Input:
 
 ```lua
@@ -176,6 +180,8 @@ if (a) {
 ```
 
 ### Convert ternary expression in return statement
+
+
 
 - Input:
 

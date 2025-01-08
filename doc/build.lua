@@ -1,3 +1,5 @@
+-- Command: nvim -u doc/build.lua -c "quit"
+
 local function get_rule_files(dir)
   local files = {}
   local p = io.popen('find "' .. dir .. '" -type f -name "*.lua"')
@@ -39,9 +41,25 @@ local function read_file(path)
 end
 
 ---@param rule Alternative.Rule
+local function get_rule_note(rule)
+  if not rule.note then
+    return ""
+  end
+
+  local template = require("alternative.utils").format_indentation([[
+    > [!NOTE]
+    > %s
+  ]])
+
+  return string.format(template, rule.note)
+end
+
+---@param rule Alternative.Rule
 local function rule_example(rule)
   local template = require("alternative.utils").format_indentation([[
     ### %s
+
+    %s
 
     - Input:
 
@@ -56,7 +74,7 @@ local function rule_example(rule)
     ```
   ]])
 
-  return string.format(template, rule.description, rule.example.input, rule.example.output)
+  return string.format(template, rule.description, get_rule_note(rule), rule.example.input, rule.example.output)
 end
 
 local function generate_markdown_content(rule_path)

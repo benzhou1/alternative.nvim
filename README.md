@@ -150,6 +150,10 @@ Users can use `forward` and `backward` to cycle between the possible outputs.
 - JavaScript:
   - [javascript.if_condition_flip](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/javascript/if_condition_flip.md)
   - [javascript.ternary_to_if_else](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/javascript/ternary_to_if_else.md)
+  - [javascript.function_definition_variants](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/javascript/function_definition_variants.md)
+
+- TypeScript:
+  - [typescript.function_definition_variants](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/typescript/function_definition_variants.md)
 
 - Lua:
   - [lua.if_condition_flip](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/lua/if_condition_flip.md)

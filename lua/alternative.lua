@@ -18,11 +18,18 @@ local utils = require("alternative.utils")
 
 ---@class Alternative.Rule
 ---@field input Alternative.Rule.Input How to get the input range
----@field trigger? fun(input: string): boolean Whether to trigger the replacement
+---@field trigger? fun(input: Alternative.Input): boolean Whether to trigger the replacement
 ---@field replacement string | string[] | fun(ctx: Alternative.Rule.ReplacementContext): string | string[] A string or a callback to resolve the string to replace
 ---@field preview? boolean Whether to show a preview of the replacement. Default: false
 ---@field description? string Description of the rule. This is used to generate the documentation.
+---@field note? string Note of the rule. This is used to generate the documentation.
 ---@field example? {input: string, output: string} An example input and output. This is used to generate the documentation.
+
+---@class Alternative.Input
+---@field text string[]
+---@field range integer[]
+---@field ts_captures table<string, TSNode[]>?
+---@field indent integer
 
 ---@class Alternative.Module
 ---@field current_rule {rule: Alternative.Rule, multi_choice_index: integer?}?
@@ -192,8 +199,6 @@ function M._all_rules()
   return _all
 end
 
-function M._setup_preview_events() end
-
 ---@param direction "forward" | "backward"
 function M._cycle_alternative(direction)
   -- Ignore if not if the rule doesn't have a multi choice
@@ -230,7 +235,7 @@ function M._eligible_rules()
       goto continue
     end
 
-    if rule.trigger and not rule.trigger(input.text) then
+    if rule.trigger and not rule.trigger(input) then
       goto continue
     end
 

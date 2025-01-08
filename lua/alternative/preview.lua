@@ -1,9 +1,3 @@
----@class Alternative.Input
----@field text string[]
----@field range integer[]
----@field ts_captures table<string, TSNode[]>?
----@field indent integer
-
 ---@class Alternative.Preview
 ---@field text string[] The preview text
 ---@field undo fun()
@@ -19,9 +13,12 @@ local M = {
   reset_hook = nil,
 }
 
+local utils = require("alternative.utils")
+
 ---@param replacement string[]
 ---@param input Alternative.Input
 function M.apply(replacement, input)
+  utils.log("🪵JLB" .. utils.dump(replacement) .. "JLB")
   if M.preview then
     -- Undo previous preview if needed
     M.preview.undo()

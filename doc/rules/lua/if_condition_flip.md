@@ -88,6 +88,8 @@ return {
 
 ### Flip the compare operator
 
+
+
 - Input:
 
 ```lua
@@ -101,6 +103,8 @@ if a ~= b then return true end
 ```
 
 ### Append not
+
+
 
 - Input:
 
