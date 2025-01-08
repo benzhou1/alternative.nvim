@@ -19,6 +19,7 @@ local utils = require("alternative.utils")
 ---@class Alternative.Rule
 ---@field input Alternative.Rule.Input How to get the input range
 ---@field trigger? fun(input: Alternative.Input): boolean Whether to trigger the replacement
+---@field filetype? string | string[] The filetypes to apply the rule to. If not specified, the rule will be applied to all filetypes.
 ---@field replacement string | string[] | fun(ctx: Alternative.Rule.ReplacementContext): string | string[] A string or a callback to resolve the string to replace
 ---@field preview? boolean Whether to show a preview of the replacement. Default: false
 ---@field description? string Description of the rule. This is used to generate the documentation.

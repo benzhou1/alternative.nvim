@@ -144,13 +144,13 @@ return {
 
 - Input:
 
-```lua
+```javascript
 const fo|o = a ? b : c
 ```
 
 - Output:
 
-```lua
+```javascript
 const foo
 if (a) {
   foo = b
@@ -165,13 +165,13 @@ if (a) {
 
 - Input:
 
-```lua
+```javascript
 fo|o = a ? b : c
 ```
 
 - Output:
 
-```lua
+```javascript
 if (a) {
   foo = b
 } else {
@@ -185,13 +185,13 @@ if (a) {
 
 - Input:
 
-```lua
+```javascript
 return a ? b : c
 ```
 
 - Output:
 
-```lua
+```javascript
 if (a) {
   return b
 } else {

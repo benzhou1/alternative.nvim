@@ -39,12 +39,12 @@ return {
 
 - Input:
 
-```lua
+```nil
 a| + 1
 ```
 
 - Output:
 
-```lua
+```nil
 a + 2
 ```

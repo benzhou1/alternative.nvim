@@ -188,13 +188,13 @@ return vim.iter({ base, lua, javascript }):flatten():totable()
 
 - Input:
 
-```lua
+```nil
 a| < b
 ```
 
 - Output:
 
-```lua
+```nil
 a > b
 ```
 
@@ -204,13 +204,13 @@ a > b
 
 - Input:
 
-```lua
+```nil
 a| > b
 ```
 
 - Output:
 
-```lua
+```nil
 a < b
 ```
 
@@ -220,13 +220,13 @@ a < b
 
 - Input:
 
-```lua
+```nil
 a| <= b
 ```
 
 - Output:
 
-```lua
+```nil
 a >= b
 ```
 
@@ -236,13 +236,13 @@ a >= b
 
 - Input:
 
-```lua
+```nil
 a| >= b
 ```
 
 - Output:
 
-```lua
+```nil
 a <= b
 ```
 
@@ -268,13 +268,13 @@ a ~= b
 
 - Input:
 
-```lua
+```nil
 a| ~= b
 ```
 
 - Output:
 
-```lua
+```nil
 a == b
 ```
 
@@ -284,13 +284,13 @@ a == b
 
 - Input:
 
-```lua
+```javascript
 a| == b
 ```
 
 - Output:
 
-```lua
+```javascript
 a != b
 ```
 
@@ -300,13 +300,13 @@ a != b
 
 - Input:
 
-```lua
+```javascript
 a| != b
 ```
 
 - Output:
 
-```lua
+```javascript
 a == b
 ```
 
@@ -316,13 +316,13 @@ a == b
 
 - Input:
 
-```lua
+```javascript
 a| === b
 ```
 
 - Output:
 
-```lua
+```javascript
 a !== b
 ```
 
@@ -332,12 +332,12 @@ a !== b
 
 - Input:
 
-```lua
+```javascript
 a| !== b
 ```
 
 - Output:
 
-```lua
+```javascript
 a === b
 ```

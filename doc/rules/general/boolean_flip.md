@@ -41,12 +41,12 @@ return {
 
 - Input:
 
-```lua
+```nil
 local fla|g = true
 ```
 
 - Output:
 
-```lua
+```nil
 local flag = false
 ```

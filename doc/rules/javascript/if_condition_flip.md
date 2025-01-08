@@ -117,7 +117,7 @@ return {
 
 - Input:
 
-```lua
+```javascript
 if (a| == b) {
   return true
 }
@@ -125,7 +125,7 @@ if (a| == b) {
 
 - Output:
 
-```lua
+```javascript
 if (a != b) {
   return true
 }
@@ -137,7 +137,7 @@ if (a != b) {
 
 - Input:
 
-```lua
+```javascript
 i|f (foo(bar, baz)) {
   return true
 }
@@ -145,7 +145,7 @@ i|f (foo(bar, baz)) {
 
 - Output:
 
-```lua
+```javascript
 if (!(foo(bar, baz))) {
   return true
 }

@@ -208,7 +208,7 @@ return {
 
 - Input:
 
-```lua
+```typescript
 func|tion foo(a: number, b: number): boolean {
   return a == b
 }
@@ -216,7 +216,7 @@ func|tion foo(a: number, b: number): boolean {
 
 - Output:
 
-```lua
+```typescript
 const foo = function (a: number, b: number): boolean {
   return a == b
 }
@@ -235,7 +235,7 @@ const foo = (a: number, b: number): boolean => {
 
 - Input:
 
-```lua
+```typescript
 const foo = func|tion (a: number, b: number): boolean {
   return a == b
 }
@@ -243,7 +243,7 @@ const foo = func|tion (a: number, b: number): boolean {
 
 - Output:
 
-```lua
+```typescript
 function foo(a, b) {
   return a == b
 }
@@ -262,7 +262,7 @@ const foo = (a: number, b: number): boolean => {
 
 - Input:
 
-```lua
+```typescript
 con|st foo = (a: number, b: number): boolean => {
   return a == b
 }
@@ -270,7 +270,7 @@ con|st foo = (a: number, b: number): boolean => {
 
 - Output:
 
-```lua
+```typescript
 function foo(a: number, b: number): boolean {
   return a == b
 }

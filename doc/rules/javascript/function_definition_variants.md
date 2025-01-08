@@ -168,7 +168,7 @@ return {
 
 - Input:
 
-```lua
+```javascript
 func|tion foo(a, b) {
   return a == b
 }
@@ -176,7 +176,7 @@ func|tion foo(a, b) {
 
 - Output:
 
-```lua
+```javascript
 const foo = function (a, b) {
   return a == b
 }
@@ -195,7 +195,7 @@ const foo = (a, b) => {
 
 - Input:
 
-```lua
+```javascript
 const foo = func|tion (a, b) {
   return a == b
 }
@@ -203,7 +203,7 @@ const foo = func|tion (a, b) {
 
 - Output:
 
-```lua
+```javascript
 function foo(a, b) {
   return a == b
 }
@@ -222,7 +222,7 @@ const foo = (a, b) => {
 
 - Input:
 
-```lua
+```javascript
 con|st foo = (a, b) => {
   return a == b
 }
@@ -230,7 +230,7 @@ con|st foo = (a, b) => {
 
 - Output:
 
-```lua
+```javascript
 function foo(a, b) {
   return a == b
 }

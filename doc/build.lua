@@ -56,6 +56,13 @@ end
 
 ---@param rule Alternative.Rule
 local function rule_example(rule)
+  local filetypes = rule.filetype
+  local filetype
+
+  if filetypes then
+    filetype = type(filetypes) == "table" and filetypes[1] or filetypes
+  end
+
   local template = require("alternative.utils").format_indentation([[
     ### %s
 
@@ -63,18 +70,26 @@ local function rule_example(rule)
 
     - Input:
 
-    ```lua
+    ```%s
     %s
     ```
 
     - Output:
 
-    ```lua
+    ```%s
     %s
     ```
   ]])
 
-  return string.format(template, rule.description, get_rule_note(rule), rule.example.input, rule.example.output)
+  return string.format(
+    template,
+    rule.description,
+    get_rule_note(rule),
+    filetype,
+    rule.example.input,
+    filetype,
+    rule.example.output
+  )
 end
 
 local function generate_markdown_content(rule_path)
