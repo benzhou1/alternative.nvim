@@ -1,3 +1,4 @@
+local utils = require("custom.utils")
 local config_mod = require("alternative.config")
 local treesitter = require("alternative.treesitter")
 local preview = require("alternative.preview")
@@ -108,7 +109,7 @@ end
 ---@param direction "forward" | "backward"
 ---@return string[]? replacement, integer? multi_choice_index
 function M._resolve_replacement(replacement, input, direction)
-  local current_text = M.preview and M.preview.text or input.text
+  local current_text = preview.is_previewing() and preview.previewing_text() or input.text
 
   -- Expand the replacement if it's a function
   if type(replacement) == "function" then

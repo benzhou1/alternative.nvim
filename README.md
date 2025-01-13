@@ -158,6 +158,7 @@ Users can use `forward` and `backward` to cycle between the possible outputs.
 - Lua:
   - [lua.if_condition_flip](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/lua/if_condition_flip.md)
   - [lua.ternary_to_if_else](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/lua/ternary_to_if_else.md)
+  - [lua.wrap_it_test_in_describe](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/lua/wrap_it_test_in_describe.md)
 
 ### Custom rules
 

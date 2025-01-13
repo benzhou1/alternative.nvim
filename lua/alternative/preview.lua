@@ -13,12 +13,9 @@ local M = {
   reset_hook = nil,
 }
 
-local utils = require("alternative.utils")
-
 ---@param replacement string[]
 ---@param input Alternative.Input
 function M.apply(replacement, input)
-  utils.log("🪵JLB" .. utils.dump(replacement) .. "JLB")
   if M.preview then
     -- Undo previous preview if needed
     M.preview.undo()
@@ -93,6 +90,10 @@ end
 
 function M.is_previewing()
   return M.preview ~= nil
+end
+
+function M.previewing_text()
+  return M.is_previewing() and M.preview.text or nil
 end
 
 function M.previewing_input()
