@@ -71,6 +71,7 @@ return {
               (_) @a
             ) @__input__
           (#not-type? @a "binary_expression")
+          (#not-type? @a "unary_expression")
         )
       ]],
       container = "if_statement",
@@ -88,6 +89,39 @@ return {
       ]]),
       output = utils.format_indentation([[
         if (!(foo(bar, baz))) {
+          return true
+        }
+      ]]),
+    },
+  },
+  {
+    input = {
+      type = "query",
+      pattern = [[
+        (if_statement
+          condition:
+            (parenthesized_expression
+              (unary_expression
+                argument: (_) @a
+              )
+            ) @__input__
+        )
+      ]],
+      container = "if_statement",
+      lookahead = true,
+    },
+    replacement = { "(@a)" },
+    preview = true,
+    filetype = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
+    description = "Remove negation operator",
+    example = {
+      input = utils.format_indentation([[
+        i|f (!foo(bar, baz)) {
+          return true
+        }
+      ]]),
+      output = utils.format_indentation([[
+        if (foo(bar, baz)) {
           return true
         }
       ]]),
