@@ -123,4 +123,30 @@ describe("lua.if_condition_flip", function()
       ]],
     })
   end)
+
+  it("removes not in the condition of if statement if it is already there", function()
+    alternative.setup({
+      rules = { "lua.if_condition_flip" },
+    })
+
+    helper.assert_scenario({
+      input = [[
+        i|f not foo then
+        end
+      ]],
+      filetype = "lua",
+      action = function()
+        alternative.alternate("forward")
+        helper.wait(10)
+
+        -- Commit the preview
+        vim.api.nvim_input("l")
+        helper.wait(10)
+      end,
+      expected = [[
+        if foo then
+        end
+      ]],
+    })
+  end)
 end)
