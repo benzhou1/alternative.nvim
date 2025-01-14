@@ -151,6 +151,7 @@ Users can use `forward` and `backward` to cycle between the possible outputs.
   - [javascript.if_condition_flip](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/javascript/if_condition_flip.md)
   - [javascript.ternary_to_if_else](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/javascript/ternary_to_if_else.md)
   - [javascript.function_definition_variants](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/javascript/function_definition_variants.md)
+  - [javascript.arrow_function_implicit_return](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/javascript/arrow_function_implicit_return.md)
 
 - TypeScript:
   - [typescript.function_definition_variants](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/typescript/function_definition_variants.md)
