@@ -11,6 +11,11 @@ Edit code using predefined rules
 
 ## Features
 
+- Edit code using predefined rules
+- A set of built-in rules that supports multiple languages
+- Support user-defined rules
+- Dot repeatable
+
 ## Requirements
 
 - [Neovim 0.10+](https://github.com/neovim/neovim/releases)
