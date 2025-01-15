@@ -783,3 +783,28 @@ describe("select", function()
     end)
   end)
 end)
+
+describe("dot repeat", function()
+  it("dot repeat preserves the direction", function()
+    alternative.setup({
+      rules = { "general.boolean_flip", "general.number_increment_decrement" },
+    })
+
+    helper.assert_scenario({
+      input = [[
+        local fo|o = true
+        local num = 42
+      ]],
+      filetype = "lua",
+      action = function()
+        alternative.alternate("forward")
+        vim.cmd("normal! j")
+        vim.cmd("normal! .")
+      end,
+      expected = [[
+        local foo = false
+        local num = 43
+      ]],
+    })
+  end)
+end)

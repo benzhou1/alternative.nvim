@@ -1,4 +1,3 @@
-local utils = require("custom.utils")
 local config_mod = require("alternative.config")
 local treesitter = require("alternative.treesitter")
 local preview = require("alternative.preview")
@@ -35,8 +34,10 @@ local utils = require("alternative.utils")
 
 ---@class Alternative.Module
 ---@field current_rule {rule: Alternative.Rule, multi_choice_index: integer?}?
+---@field alternate_direction? "forward" | "backward"
 local M = {
   current_rule = nil,
+  alternate_direction = nil,
 }
 
 ---The input can be either:
@@ -255,8 +256,10 @@ function M._eligible_rules()
   return result
 end
 
----@param direction "forward" | "backward"
-function M.alternate(direction)
+function M.__alternate()
+  local direction = M.alternate_direction
+  ---@cast direction -nil
+
   local function apply_rule(entry)
     local rule = entry.rule
     local input = entry.input
@@ -285,6 +288,13 @@ function M.alternate(direction)
   elseif #eligible_rules == 1 then
     apply_rule(eligible_rules[1])
   end
+end
+
+---@param direction "forward" | "backward"
+function M.alternate(direction)
+  vim.go.operatorfunc = "v:lua.require'alternative'.__alternate"
+  M.alternate_direction = direction
+  vim.cmd("normal! g@l")
 end
 
 M.setup = function(config)
