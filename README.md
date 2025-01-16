@@ -6,6 +6,7 @@ https://github.com/user-attachments/assets/cce6c98a-b505-415c-a407-ee2f99da948c
 
 ## Table of contents
 
+- [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Setup](#setup)
