@@ -90,6 +90,7 @@ describe("config", function()
         ---@diagnostic disable-next-line: undefined-field
         vim.fn.getcharstr.returns("x")
         alternative.alternate("forward")
+        helper.wait(50)
       end,
       expected = [[
         local foo = "11"
@@ -105,6 +106,7 @@ describe("config", function()
         ---@diagnostic disable-next-line: undefined-field
         vim.fn.getcharstr.returns("y")
         alternative.alternate("forward")
+        helper.wait(50)
       end,
       expected = [[
         local foo = "00"
@@ -728,6 +730,7 @@ describe("select", function()
           ---@diagnostic disable-next-line: undefined-field
           vim.fn.getcharstr.returns("a")
           alternative.alternate("forward")
+          helper.wait(50)
         end,
         expected = [[
           local foo = false or 42
@@ -743,6 +746,7 @@ describe("select", function()
           ---@diagnostic disable-next-line: undefined-field
           vim.fn.getcharstr.returns("s")
           alternative.alternate("forward")
+          helper.wait(50)
         end,
         expected = [[
           local foo = true or 43
@@ -769,6 +773,7 @@ describe("select", function()
           ---@diagnostic disable-next-line: undefined-field
           vim.fn.getcharstr.returns("1")
           alternative.alternate("forward")
+          helper.wait(50)
         end,
         expected = [[
           local foo = true or 42

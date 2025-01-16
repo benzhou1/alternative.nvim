@@ -115,25 +115,30 @@ function M.show(entries, show_rule_id, callback)
   -- Setup keyboard input handlers
   -- We need to redraw first, otherwise, getcharstr will block the UI
   vim.cmd("redraw")
-  local ok, ret = pcall(vim.fn.getcharstr)
-  if ok then
-    local char = vim.fn.keytrans(ret)
 
-    local selected = vim.iter(options):find(function(option)
-      return option.label == char
-    end)
+  --- Defer to make sure Neovim has a change to redraw the screen
+  --- The 50ms is chosen arbitrarily
+  vim.defer_fn(function()
+    local ok, ret = pcall(vim.fn.getcharstr)
+    if ok then
+      local char = vim.fn.keytrans(ret)
 
-    if selected then
-      callback(selected.entry)
-      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
-    elseif char == "?" and not show_rule_id then
-      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
-      M.show(entries, true, callback)
-    else
-      -- Any other keys would cancel the selection
-      vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
+      local selected = vim.iter(options):find(function(option)
+        return option.label == char
+      end)
+
+      if selected then
+        callback(selected.entry)
+        vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
+      elseif char == "?" and not show_rule_id then
+        vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
+        M.show(entries, true, callback)
+      else
+        -- Any other keys would cancel the selection
+        vim.api.nvim_buf_clear_namespace(0, M.rule_selection_ns, 0, -1)
+      end
     end
-  end
+  end, 50)
 end
 
 function M.setup()
