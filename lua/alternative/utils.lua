@@ -1,29 +1,5 @@
 local M = {}
 
-function M.log(message)
-  local log_file_path = "/tmp/nvim_debug.log"
-  local log_file = io.open(log_file_path, "a")
-  io.output(log_file)
-  io.write(M.dump(message) .. "\n")
-  io.close(log_file)
-end
-
-function M.dump(o, nest)
-  nest = nest or 2
-  if type(o) == "table" then
-    local s = "{ " .. "\n" .. string.rep(" ", nest)
-    for k, v in pairs(o) do
-      if type(k) ~= "number" then
-        k = '"' .. k .. '"'
-      end
-      s = s .. "[" .. k .. "] = " .. M.dump(v, nest + 2) .. "," .. "\n" .. string.rep(" ", nest)
-    end
-    return s .. "} "
-  else
-    return tostring(o)
-  end
-end
-
 ---@param bounded_whitespaces boolean Whether to use whitespaces as word boundary
 function M.get_current_word(bounded_whitespaces)
   local cursor = vim.api.nvim_win_get_cursor(0)
