@@ -116,8 +116,8 @@ function M.show(entries, show_rule_id, callback)
   -- We need to redraw first, otherwise, getcharstr will block the UI
   vim.cmd("redraw")
 
-  --- Defer to make sure Neovim has a change to redraw the screen
-  --- The 50ms is chosen arbitrarily
+  -- Defer to make sure Neovim has a change to redraw the screen
+  -- The 50ms is chosen arbitrarily
   vim.defer_fn(function()
     local ok, ret = pcall(vim.fn.getcharstr)
     if ok then

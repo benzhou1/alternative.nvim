@@ -50,13 +50,37 @@ local function find_closest_ancestor(node_type)
   return nil
 end
 
+---@param filetype string
+---@return string?
+local function get_lang(filetype)
+  -- Source: https://github.com/folke/noice.nvim/blob/5070aaeab3d6bf3a422652e517830162afd404e0/lua/noice/text/treesitter.lua
+  local has_lang = function(lang)
+    local ok, ret = pcall(vim.treesitter.language.add, lang)
+
+    if vim.fn.has("nvim-0.11") == 1 then
+      return ok and ret
+    end
+
+    return ok
+  end
+
+  -- Treesitter doesn't support jsx directly but through tsx
+  local lang = filetype == "javascriptreact" and "tsx"
+    or (vim.treesitter.language.get_lang(vim.bo.filetype) or vim.bo.filetype)
+  return has_lang(lang) and lang or nil
+end
+
 ---@param query_string string
 ---@param lookahead boolean The result node must contain the cursor. If lookahead is false, the cursor must be inside the @__input__ capture. If lookahead is true, the cursor can be before the @__input__
 ---@param container string?
 ---@return table<string, TSNode>? captures, integer[]? range
 function M.query(query_string, lookahead, container)
   local bufnr = vim.api.nvim_get_current_buf()
-  local lang = vim.bo.filetype
+  local lang = get_lang(vim.bo.filetype)
+  if not lang then
+    return nil
+  end
+
   local query = vim.treesitter.query.parse(lang, query_string)
 
   local parser = vim.treesitter.get_parser(bufnr, lang)
