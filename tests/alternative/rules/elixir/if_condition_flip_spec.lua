@@ -9,7 +9,7 @@ describe("elixir.if_condition_flip", function()
 
     helper.assert_scenario({
       input = [[
-        i|f foo, do: bar
+        if fo|o, do: bar
       ]],
       filetype = "elixir",
       action = function()
@@ -27,7 +27,7 @@ describe("elixir.if_condition_flip", function()
 
     helper.assert_scenario({
       input = [[
-        i|f foo, do: bar
+        if fo|o, do: bar
       ]],
       filetype = "elixir",
       action = function()
@@ -53,7 +53,7 @@ describe("elixir.if_condition_flip", function()
 
     helper.assert_scenario({
       input = [[
-        i|f not foo, do: bar
+        if not f|oo, do: bar
       ]],
       filetype = "elixir",
       action = function()
@@ -71,7 +71,7 @@ describe("elixir.if_condition_flip", function()
 
     helper.assert_scenario({
       input = [[
-        i|f !foo, do: bar
+        if !fo|o, do: bar
       ]],
       filetype = "elixir",
       action = function()

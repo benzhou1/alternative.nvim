@@ -17,7 +17,6 @@ return {
         )
       ]],
       container = "call",
-      lookahead = true,
     },
     replacement = { "not @__input__", "!@__input__" },
     preview = true,
@@ -45,7 +44,6 @@ return {
         )
       ]],
       container = "call",
-      lookahead = true,
     },
     replacement = "@condition",
     filetype = "elixir",

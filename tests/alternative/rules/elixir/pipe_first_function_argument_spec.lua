@@ -43,4 +43,82 @@ describe("elixir.pipe_first_function_argument", function()
       ]],
     })
   end)
+
+  it("ingores control flow functions", function()
+    alternative.setup({
+      rules = { "elixir.pipe_first_function_argument" },
+    })
+
+    helper.assert_scenario({
+      input = [[
+        if f|oo do
+          bar
+        end
+      ]],
+      filetype = "elixir",
+      action = function()
+        alternative.alternate("forward")
+        helper.wait(10)
+      end,
+      expected = [[
+        if foo do
+          bar
+        end
+      ]],
+    })
+
+    helper.assert_scenario({
+      input = [[
+        case f|oo do
+          bar -> baz
+        end
+      ]],
+      filetype = "elixir",
+      action = function()
+        alternative.alternate("forward")
+        helper.wait(10)
+      end,
+      expected = [[
+        case foo do
+          bar -> baz
+        end
+      ]],
+    })
+
+    helper.assert_scenario({
+      input = [[
+        co|nd do
+          true -> false
+        end
+      ]],
+      filetype = "elixir",
+      action = function()
+        alternative.alternate("forward")
+        helper.wait(10)
+      end,
+      expected = [[
+        cond do
+          true -> false
+        end
+      ]],
+    })
+
+    helper.assert_scenario({
+      input = [[
+        de|f test do
+          bar
+        end
+      ]],
+      filetype = "elixir",
+      action = function()
+        alternative.alternate("forward")
+        helper.wait(10)
+      end,
+      expected = [[
+        def test do
+          bar
+        end
+      ]],
+    })
+  end)
 end)

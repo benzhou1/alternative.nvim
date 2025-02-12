@@ -1,20 +1,26 @@
+local ignore_built_in_functions = [[(#not-any-of? @function_name "if" "case" "cond" "with" "def" "defp" "defmacro")]]
 return {
   {
     input = {
       type = "query",
       -- Single argument function call
-      pattern = [[
-        (call
-          target: (_) @function_name
-          (arguments
-            .
-            (_) @argument
-            .
+      pattern = string.format(
+        [[
+          (
+            (call
+              target: (_) @function_name
+              (arguments
+                .
+                (_) @argument
+                .
+              )
+            ) @__input__
+            %s
           )
-        ) @__input__
-      ]],
+        ]],
+        ignore_built_in_functions
+      ),
       container = "call",
-      lookahead = true,
     },
     replacement = "@argument |> @function_name()",
     filetype = "elixir",
@@ -28,19 +34,24 @@ return {
     input = {
       type = "query",
       -- Multiple arguments function call
-      pattern = [[
-        (call
-          target: (_) @function_name
-          (arguments
-            .
-            (_) @first_argument
-            .
-            (_) @second_argument
-          ) @arguments
-        ) @__input__
-      ]],
+      pattern = string.format(
+        [[
+          (
+            (call
+              target: (_) @function_name
+              (arguments
+                .
+                (_) @first_argument
+                .
+                (_) @second_argument
+              ) @arguments
+            ) @__input__
+            %s
+          )
+        ]],
+        ignore_built_in_functions
+      ),
       container = "call",
-      lookahead = true,
     },
     replacement = function(ctx)
       local _, _, args_erow, args_ecol = vim.treesitter.get_node_range(ctx.query_captures.arguments[1])

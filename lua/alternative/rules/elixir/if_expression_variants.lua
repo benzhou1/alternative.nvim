@@ -20,8 +20,10 @@ return {
         )
       ]],
       container = "call",
-      lookahead = true,
     },
+    trigger = function(ctx)
+      return utils.get_current_word(ctx) == "if"
+    end,
     replacement = "if @condition, do: @body",
     filetype = "elixir",
     description = "if expression: long form to short form",
@@ -59,8 +61,10 @@ return {
         )
       ]],
       container = "call",
-      lookahead = true,
     },
+    trigger = function(ctx)
+      return utils.get_current_word(ctx) == "if"
+    end,
     replacement = "if @condition, do: @if_body, else: @else_body",
     filetype = "elixir",
     description = "if/else expression: long form to short form",
@@ -102,8 +106,10 @@ return {
         )
       ]],
       container = "call",
-      lookahead = true,
     },
+    trigger = function(ctx)
+      return utils.get_current_word(ctx) == "if"
+    end,
     replacement = utils.format_indentation([[
       if @condition do
         @do_body
@@ -153,8 +159,10 @@ return {
         )
       ]],
       container = "call",
-      lookahead = true,
     },
+    trigger = function(ctx)
+      return utils.get_current_word(ctx) == "if"
+    end,
     replacement = utils.format_indentation([[
       if @condition do
         @do_body
