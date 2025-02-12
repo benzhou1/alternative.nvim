@@ -1,0 +1,46 @@
+local alternative = require("alternative")
+local helper = require("tests.alternative.helper")
+
+describe("elixir.pipe_first_function_argument", function()
+  it("converts single argument function call to pipe", function()
+    alternative.setup({
+      rules = { "elixir.pipe_first_function_argument" },
+    })
+
+    helper.assert_scenario({
+      input = [[
+        f_oo(bar)
+      ]],
+      filetype = "elixir",
+      input_cursor = "_",
+      action = function()
+        alternative.alternate("forward")
+        helper.wait(10)
+      end,
+      expected = [[
+        bar |> foo()
+      ]],
+    })
+  end)
+
+  it("converts multiple argument function call to pipe", function()
+    alternative.setup({
+      rules = { "elixir.pipe_first_function_argument" },
+    })
+
+    helper.assert_scenario({
+      input = [[
+        f_oo(bar, baz)
+      ]],
+      filetype = "elixir",
+      input_cursor = "_",
+      action = function()
+        alternative.alternate("forward")
+        helper.wait(10)
+      end,
+      expected = [[
+        bar |> foo(baz)
+      ]],
+    })
+  end)
+end)
