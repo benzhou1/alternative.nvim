@@ -109,4 +109,24 @@ describe("elixir.function_definition_variants", function()
       ]],
     })
   end)
+
+  it("only triggers if the cursor is in the def/defp/defmacro keyword", function()
+    alternative.setup({
+      rules = { "elixir.function_definition_variants" },
+    })
+
+    helper.assert_scenario({
+      input = [[
+        def fo|o, do: bar
+      ]],
+      filetype = "elixir",
+      action = function()
+        alternative.alternate("forward")
+        helper.wait(10)
+      end,
+      expected = [[
+        def foo, do: bar
+      ]],
+    })
+  end)
 end)

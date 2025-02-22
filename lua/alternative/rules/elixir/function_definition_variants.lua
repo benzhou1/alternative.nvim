@@ -4,7 +4,6 @@ return {
   {
     input = {
       type = "query",
-      -- Match if expressions that have single expression body
       pattern = [[
         (
           (call
@@ -26,6 +25,10 @@ return {
       container = "call",
       lookahead = true,
     },
+    trigger = function(ctx)
+      -- The cursor should be at the def/deps text
+      return utils.cursor_in_node(ctx.ts_captures.identifier[1])
+    end,
     replacement = "@identifier @function_head, do: @do_body",
     filetype = "elixir",
     description = "function definition: do block to do keyword",
@@ -41,7 +44,6 @@ return {
   {
     input = {
       type = "query",
-      -- Match if expressions that have single expression body
       pattern = [[
         (
           (call
@@ -67,6 +69,10 @@ return {
       container = "call",
       lookahead = true,
     },
+    trigger = function(ctx)
+      -- The cursor should be at the def/deps text
+      return utils.cursor_in_node(ctx.ts_captures.identifier[1])
+    end,
     replacement = utils.format_indentation([[
       @identifier @function_head do
         @do_body
