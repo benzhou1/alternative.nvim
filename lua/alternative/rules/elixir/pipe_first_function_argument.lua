@@ -81,4 +81,44 @@ return {
       output = "bar |> foo(baz)",
     },
   },
+  {
+    input = {
+      type = "query",
+      pattern = [[
+        (binary_operator
+          left: (_) @first_argument
+          "|>"
+          right:
+            (call
+              target: (_) @function_name
+              (arguments) @rest_arguments
+            )
+        ) @__input__
+      ]],
+      container = "binary_operator",
+    },
+    -- Only trigger when the cursor is in the first argument
+    trigger = function(ctx)
+      local first_argument = ctx.ts_captures.first_argument[1]
+      local srow, scol, erow, ecol = vim.treesitter.get_node_range(first_argument)
+      return utils.cursor_in_range({ srow, scol, erow, ecol })
+    end,
+    replacement = function(ctx)
+      local rest = vim.treesitter.get_node_text(ctx.query_captures.rest_arguments[1], 0)
+      -- Remove the parentheses
+      rest = rest:sub(2, -2)
+
+      if rest == "" then
+        return "@function_name(@first_argument)"
+      else
+        return string.format("@function_name(@first_argument, %s)", rest)
+      end
+    end,
+    filetype = "elixir",
+    description = "Un-pipe the first argument. Only triggers when the cursor is in the first argument",
+    example = {
+      input = "bar |> foo(baz)",
+      output = "foo(bar, baz)",
+    },
+  },
 }

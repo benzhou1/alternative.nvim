@@ -48,6 +48,31 @@ describe("elixir.pipe_first_function_argument", function()
     })
   end)
 
+  it("converts pipe function call into normal function call", function()
+    alternative.setup({
+      rules = { "elixir.pipe_first_function_argument" },
+    })
+
+    helper.assert_scenario({
+      input = [[
+        b_ar |> foo(fn acc ->
+          acc + 1
+        end)
+      ]],
+      filetype = "elixir",
+      input_cursor = "_",
+      action = function()
+        alternative.alternate("forward")
+        helper.wait(10)
+      end,
+      expected = [[
+        foo(bar, fn acc ->
+          acc + 1
+        end)
+      ]],
+    })
+  end)
+
   it("ONLY triggers when the cursor is in the function name", function()
     alternative.setup({
       rules = { "elixir.pipe_first_function_argument" },
