@@ -30,7 +30,9 @@ describe("elixir.pipe_first_function_argument", function()
 
     helper.assert_scenario({
       input = [[
-        f_oo(bar, baz)
+        f_oo(bar, fn acc ->
+          acc + 1
+        end)
       ]],
       filetype = "elixir",
       input_cursor = "_",
@@ -39,7 +41,9 @@ describe("elixir.pipe_first_function_argument", function()
         helper.wait(10)
       end,
       expected = [[
-        bar |> foo(baz)
+        bar |> foo(fn acc ->
+          acc + 1
+        end)
       ]],
     })
   end)

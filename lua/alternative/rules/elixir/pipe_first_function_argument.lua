@@ -1,3 +1,4 @@
+local _utils = require("custom.utils")
 local utils = require("alternative.utils")
 local ignore_built_in_functions = [[(#not-any-of? @function_name "if" "case" "cond" "with" "def" "defp" "defmacro")]]
 
@@ -70,9 +71,8 @@ return {
     replacement = function(ctx)
       local _, _, args_erow, args_ecol = vim.treesitter.get_node_range(ctx.query_captures.arguments[1])
       local second_srow, second_scol, _, _ = vim.treesitter.get_node_range(ctx.query_captures.second_argument[1])
-      local from_second_arguments =
-        vim.api.nvim_buf_get_text(0, second_srow, second_scol, args_erow, args_ecol - 1, {})[1]
-      return string.format("@first_argument |> @function_name(%s)", from_second_arguments)
+      local lines = vim.api.nvim_buf_get_text(0, second_srow, second_scol, args_erow, args_ecol - 1, {})
+      return string.format("@first_argument |> @function_name(%s)", table.concat(lines, "\n"))
     end,
     filetype = "elixir",
     description = "Pipe the first argument. Only triggers when the cursor is in the function name",
