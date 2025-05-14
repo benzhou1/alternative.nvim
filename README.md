@@ -1,6 +1,6 @@
 # alternative.nvim
 
-Edit code using predefined rules
+Quickly edit code using predefined rules which provide deep support for multiple languages.
 
 https://github.com/user-attachments/assets/cce6c98a-b505-415c-a407-ee2f99da948c
 
@@ -168,6 +168,12 @@ Users can use `forward` and `backward` to cycle between the possible outputs.
   - [lua.if_condition_flip](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/lua/if_condition_flip.md)
   - [lua.ternary_to_if_else](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/lua/ternary_to_if_else.md)
   - [lua.wrap_it_test_in_describe](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/lua/wrap_it_test_in_describe.md)
+
+- Elixir:
+  - [elixir.function_definition_variants](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/elixir/function_definition_variants.md)
+  - [elixir.if_condition_flip](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/elixir/if_condition_flip.md)
+  - [elixir.if_expression_variants](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/elixir/if_expression_variants.md)
+  - [elixir.pipe_first_function_argument](https://github.com/Goose97/alternative.nvim/blob/main/doc/rules/elixir/pipe_first_function_argument.md)
 
 ### Custom rules
 
