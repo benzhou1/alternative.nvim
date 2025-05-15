@@ -27,7 +27,7 @@ return {
     note = "Only triggers when the cursor is on the arrow (=>) text",
     example = {
       input = utils.format_indentation([[
-        const add = (a, b) =|> a + b
+        const add = (a, b) => a + b
       ]]),
       output = utils.format_indentation([[
         const add = (a, b) => {
@@ -70,7 +70,7 @@ return {
         }
       ]]),
       output = utils.format_indentation([[
-        const add = (a, b) =|> a + b
+        const add = (a, b) => a + b
       ]]),
     },
   },
