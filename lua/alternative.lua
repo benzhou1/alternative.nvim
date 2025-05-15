@@ -165,14 +165,22 @@ end
 function M._all_rules()
   local _all = {}
 
-  local function handle_rule(rule_content, rule_id)
+  local function handle_rule(rule_content, rule_id, extend)
     -- A group of rules
     if rule_content[1] then
       for _, rule in ipairs(rule_content) do
+        if extend then
+          rule = vim.tbl_deep_extend("force", rule, extend)
+        end
+
         rule.__id__ = rule_id
         table.insert(_all, rule)
       end
     else
+      if extend then
+        rule_content = vim.tbl_deep_extend("force", rule_content, extend)
+      end
+
       rule_content.__id__ = rule_id
       table.insert(_all, rule_content)
     end
@@ -188,8 +196,7 @@ function M._all_rules()
   for rule_id, extend in pairs(config_mod.config.rules) do
     if rule_id ~= "custom" and type(rule_id) == "string" then
       local content = require("alternative.rules." .. rule_id)
-      content = vim.tbl_deep_extend("force", content, extend)
-      handle_rule(content, rule_id)
+      handle_rule(content, rule_id, extend)
     end
   end
 
