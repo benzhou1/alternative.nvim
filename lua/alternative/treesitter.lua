@@ -116,6 +116,12 @@ end
 function M.setup()
   vim.treesitter.query.add_predicate("type?", function(match, _, _, predicate)
     local node = match[predicate[2]]
+
+    -- nvim-0.11 returns a list of matched nodes, instead of the last one
+    if vim.fn.has("nvim-0.11") == 1 then
+      node = node[1]
+    end
+
     local type = predicate[3]
 
     return node:type() == type
