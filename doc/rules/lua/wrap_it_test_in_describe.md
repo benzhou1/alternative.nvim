@@ -6,7 +6,6 @@
 <summary><strong>Show</strong></summary>
 
 ```lua
-local utils = require("custom.utils")
 local utils = require("alternative.utils")
 
 return {

@@ -6,7 +6,6 @@
 <summary><strong>Show</strong></summary>
 
 ```lua
-local _utils = require("custom.utils")
 local utils = require("alternative.utils")
 local ignore_built_in_functions = [[(#not-any-of? @function_name "if" "case" "cond" "with" "def" "defp" "defmacro")]]
 
