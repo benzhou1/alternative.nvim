@@ -144,7 +144,10 @@ function M._resolve_replacement(replacement, input, direction)
       current_index = nil
     end
 
-    to_replace = current_index and { replacement[current_index] } or nil
+    to_replace = current_index and replacement[current_index] or nil
+    if type(to_replace) == "string" then
+      to_replace = { to_replace }
+    end
     multi_choice_index = current_index
   end
 
